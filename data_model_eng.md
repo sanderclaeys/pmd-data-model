@@ -1,18 +1,4 @@
-# TODO
-
-- add `status` everywhere
-
-
-# Shared patterns
-
-- Each component has a unique (amonst components of the same type) identifier `id`.
-- Everything is defined in SI units, except when a base is explicitly mentioned in the description.
-- The default sometimes only mentions the default element, not the default value (e.g. `true` and not `fill(fill(true, 3), 3)`)
-
 # Data model
-
-- Should the `id` be part of the component data model, are implied by its (id, comp) pair in the dictionary? Extra housekeeping/ensuring consistency vs convenience
-- Semantically, `rating` is used for quantities that have a natural lower bound of 0, whilst quantities with `min/max` bounds have an explicit lower and upper bound.
 
 ## Generic bus
 
