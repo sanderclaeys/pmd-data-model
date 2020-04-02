@@ -9,6 +9,8 @@ The data model below allows us to include buses of arbitrary many terminals (i.e
 
 | name      | default   | type          | description                                   |
 | --------- | --------- | ------------- | --------------------------------------------- |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | terminals | [1,2,3,4] | Vector        |                                               |
 | vm_max    | /         | Vector{Real}  | maximum conductor-to-ground voltage magnitude |
 | vm_min    | /         | Vector{Real}  | minimum conductor-to-ground voltage magnitude |
@@ -51,7 +53,8 @@ This keeps the user from specifying things that do not make sense. This type of 
 
 | name         | default | type   | description                                               |
 | ------------ | ------- | ------ | --------------------------------------------------------- |
-| id           | /       |        | unique identifier                                         |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | phases       | [1,2,3] | Vector |                                                           |
 | neutral      | 4       |        | maximum conductor-to-ground voltage magnitude             |
 | vm_pn_max    | /       | Real   | maximum phase-to-neutral voltage magnitude for all phases |
@@ -73,6 +76,8 @@ This is a pi-model branch.
 | name          | default | type | description                                                              |
 | ------------- | ------- | ---- | ------------------------------------------------------------------------ |
 | id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | f_bus         | /       |      |                                                                          |
 | f_connections | /       |      | indicates for each conductor, to which terminal of the f_bus it connects |
 | t_bus         | /       |      |                                                                          |
@@ -96,7 +101,8 @@ Add example for linecodes/lines off different size (conductors)
 
 | name | default | type | description                          |
 | ---- | ------- | ---- | ------------------------------------ |
-| id   | /       |      | unique identifier                    |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | rs   | /       |      | series resistance matrix             |
 | xs   | /       |      | series reactance matrix n_conductors |
 | g_fr | /       |      | from-side conductance                |
@@ -108,7 +114,8 @@ Add example for linecodes/lines off different size (conductors)
 
 | name        | default | type | description                                                |
 | ----------- | ------- | ---- | ---------------------------------------------------------- |
-| id          | /       |      | unique identifier                                          |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | bus         | /       |      |                                                            |
 | connections | /       |      |                                                            |
 | g           | /       |      | conductance, size should be \|connections\|x\|connections\||
@@ -131,7 +138,8 @@ Give some examples
 
 | name          | default | type         | description                                                     |
 | ------------- | ------- | ------------ | --------------------------------------------------------------- |
-| id            | /       |              | unique identifier                                               |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | bus           | /       |              |                                                                 |
 | connections   | /       |              |                                                                 |
 | configuration | /       | {wye, delta} | if wye-connected, the last connection will indicate the neutral |
@@ -171,7 +179,8 @@ Also support this explicitly, or as a separate component? Yes, but not priority
 
 | name          | default | type         | description                                                     |
 | ------------- | ------- | ------------ | --------------------------------------------------------------- |
-| id            | /       |              | unique identifier                                               |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | bus           | /       |              |                                                                 |
 | connections   | /       |              |                                                                 |
 | configuration | /       | {wye, delta} | if wye-connected, the last connection will indicate the neutral |
@@ -186,7 +195,8 @@ These are transformers are assymetric (A), lossless (L) and two-winding (2W). As
 
 | name          | default                | type         | description                                                              |
 | ------------- | ---------------------- | ------------ | ------------------------------------------------------------------------ |
-| id            | /                      |              | unique identifier                                                        |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | n_phases      | size(rs)[1]            | Int>0        | number of phases                                                         |
 | f_bus         | /                      |              |                                                                          |
 | f_connections | /                      |              | indicates for each conductor, to which terminal of the f_bus it connects |
@@ -207,7 +217,8 @@ These are n-winding, n-phase, lossy transformers. Note that most properties are 
 
 | name           | default     | type                 | description                                                                                                    |
 | -------------- | ----------- | -------------------- | -------------------------------------------------------------------------------------------------------------- |
-| id             | /           |                      | unique identifier                                                                                              |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | n_phases       | size(rs)[1] | Int>0                | number of phases                                                                                               |
 | n_windings     | size(rs)[1] | Int>0                | number of windings                                                                                             |
 | bus            | /           | Vector               | list of bus for each winding                                                                                   |
@@ -228,6 +239,7 @@ These are n-winding, n-phase, lossy transformers. Note that most properties are 
 | name          | default | type | description                                                              |
 | ------------- | ------- | ---- | ------------------------------------------------------------------------ |
 | id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | state            | /       |      | unique identifier                                                        |
 | f_bus         | /       |      |                                                                          |
 | f_connections | /       |      | indicates for each conductor, to which terminal of the f_bus it connects |
@@ -243,7 +255,8 @@ These are n-winding, n-phase, lossy transformers. Note that most properties are 
 
 | name          | default | type         | description                                                     |
 | ------------- | ------- | ------------ | --------------------------------------------------------------- |
-| id            | /       |              | unique identifier                                               |
+| id            | /       |      | unique identifier                                                        |
+| status           | 1       | Bool       | enable/disable component                                        |
 | bus           | /       |              |                                                                 |
 | connections   | /       |              |                                                                 |
 | configuration | /       | {wye, delta} | if wye-connected, the last connection will indicate the neutral |
