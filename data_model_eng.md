@@ -380,6 +380,7 @@ Linecodes are easy ways to specify properties common to multiple lines.
 | `b_fr`   |         | `Matrix{Real}` | siemens/meter/Hz | From-side susceptance, `size=(nconductors,nconductors)`                 |
 | `g_to`   |         | `Matrix{Real}` | siemens/meter/Hz | To-side conductance, `size=(nconductors,nconductors)`                   |
 | `b_to`   |         | `Matrix{Real}` | siemens/meter/Hz | To-side susceptance, `size=(nconductors,nconductors)`                   |
+| `c_rating`   |         | `Vector{Real}` | ampere | maximum current per conductor, symmetrically applicable                   |
 | `status` | `1`     | `Bool`         |                  | `1` or `0`. Indicates if component is enabled or disabled, respectively |
 
 ### Transformer Codes (`xfmrcode`)
