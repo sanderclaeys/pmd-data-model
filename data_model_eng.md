@@ -381,7 +381,6 @@ Linecodes are easy ways to specify properties common to multiple lines.
 | `g_to`   |         | `Matrix{Real}` | siemens/meter/Hz | To-side conductance, `size=(nconductors,nconductors)`                   |
 | `b_to`   |         | `Matrix{Real}` | siemens/meter/Hz | To-side susceptance, `size=(nconductors,nconductors)`                   |
 | `c_rating`   |         | `Vector{Real}` | ampere | maximum current per conductor, symmetrically applicable                   |
-| `status` | `1`     | `Bool`         |                  | `1` or `0`. Indicates if component is enabled or disabled, respectively |
 
 ### Transformer Codes (`xfmrcode`)
 
@@ -397,7 +396,6 @@ Transformer codes are easy ways to specify properties common to multiple transfo
 | `tm_min`         |                                        | `Vector{Vector{Real}}` |       | Minimum tap ratio for for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                |
 | `tm_set`         | `fill(fill(1.0, nphases), nwindings)`  | `Vector{Vector{Real}}` |       | Set tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                        |
 | `tm_fix`         | `fill(fill(true, nphases), nwindings)` | `Vector{Vector{Bool}}` |       | Indicates for each winding and phase whether the tap ratio is fixed, `size=((nphases), nwindings)`             |
-| `status`         | `1`                                    | `Bool`                 |       | `1` or `0`. Indicates if component is enabled or disabled, respectively                                        |
 
 ### Curves (`curve`)
 
