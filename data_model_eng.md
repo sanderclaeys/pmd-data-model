@@ -63,7 +63,6 @@ The data model below allows us to include buses of arbitrary many terminals (_i.
 | Name          | Default     | Type            | Units  | Description                                                                                          |
 | ------------- | ----------- | --------------- | ------ | ---------------------------------------------------------------------------------------------------- |
 | `terminals`   | `[1,2,3,4]` | `Vector{Any}`   |        | Terminals for which the bus has active connections                                                   |
-| `neutral`     | `4`         | `Any`           |        | Identifies the terminal that represents the neutral conductor (only one neutral conductor supported) |
 | `vm_min`      |             | `Vector{Real}`  |        | Minimum conductor-to-ground voltage magnitude, `size=nphases`                                        |
 | `vm_max`      |             | `Vector{Real}`  |        | Maximum conductor-to-ground voltage magnitude, `size=nphases`                                        |
 | `vm_pair_max` |             | `Vector{Tuple}` |        | _e.g._  `[(1,2,210)]` means \|U1-U2\|>210                                                            |
@@ -106,18 +105,18 @@ In order to avoid all of this confusion, we introduce this component, which is a
 
 This keeps the user from specifying things that do not make sense. This type of bus would suffice for most of the use cases.
 
+Instead of defining the bounds directly, they can be specified through an associated voltagezone.
+
 | Name           | Default | Type   | Units | Description                                               |
 | -------------- | ------- | ------ | ----- | --------------------------------------------------------- |
+| `phases`       | `[1,2,3]`     | Vector{Any}  |       | Identifies the terminal that represents the neutral conductor |
+| `neutral`      | `4`     | `Any`  |       | Identifies the terminal that represents the neutral conductor |
+| `voltagezone`  |         | `Any`  |       | (Optional) id of an associated voltage zone               |
 | `vm_pn_min`    |         | `Real` |       | Minimum phase-to-neutral voltage magnitude for all phases |
 | `vm_pn_max`    |         | `Real` |       | Maximum phase-to-neutral voltage magnitude for all phases |
 | `vm_pp_min`    |         | `Real` |       | Minimum phase-to-phase voltage magnitude for all phases   |
 | `vm_pp_max`    |         | `Real` |       | Maximum phase-to-phase voltage magnitude for all phases   |
 | `vm_ng_rating` |         | `Real` |       | Maximum neutral-to-ground voltage magnitude               |
-
-Should we automatically imply vmax and vmin bounds for this?, _i.e._
-
-- `vmax = [fill(vm_pn_max+vm_ng_rating, |phases|)..., vm_ng_rating]`
-- `vmin = [fill(vm_pn_min-vm_ng_rating, |phases|)..., 0]`
 
 ## Edge Objects
 
@@ -397,6 +396,18 @@ Transformer codes are easy ways to specify properties common to multiple transfo
 | `tm_set`         | `fill(fill(1.0, nphases), nwindings)`  | `Vector{Vector{Real}}` |       | Set tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                        |
 | `tm_fix`         | `fill(fill(true, nphases), nwindings)` | `Vector{Vector{Bool}}` |       | Indicates for each winding and phase whether the tap ratio is fixed, `size=((nphases), nwindings)`             |
 
+### Voltage Zones (`voltagezone`)
+
+Voltage zones are a convenient way to specify voltage bounds for a set of three-phase buses (ones with `phases`/`neutral` properties).
+
+| Name             | Default                                | Type                   | Units | Description                                                                                                    |
+| ---------------- | -------------------------------------- | ---------------------- | ----- | -------------------------------------------------------------------------------------------------------------- |
+| `vnom`         |         | `Real` |       | Nominal phase-to-neutral voltage |
+| `vm_pn_min`    |         | `Real` |       | Minimum phase-to-neutral voltage magnitude for all phases |
+| `vm_pn_max`    |         | `Real` |       | Maximum phase-to-neutral voltage magnitude for all phases |
+| `vm_pp_min`    |         | `Real` |       | Minimum phase-to-phase voltage magnitude for all phases   |
+| `vm_pp_max`    |         | `Real` |       | Maximum phase-to-phase voltage magnitude for all phases   |
+| `vm_ng_rating` |         | `Real` |       | Maximum neutral-to-ground voltage magnitude               |
 ### Curves (`curve`)
 
 Curve objects are functions f(x) that return single values for a given x. This is useful for several objects like `solar` power-temperature curves, or efficiency curves on various objects.
