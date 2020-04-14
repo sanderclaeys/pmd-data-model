@@ -322,8 +322,6 @@ The generator cost model is specified by the following fields.
 | -------------------- | ----------------- | -------------- | ----- | -------- | --------------------------------------------------------- |
 | `cost_pg_model`      | `2`               | `Int`          |       | opf      | Cost model type, `1` = piecewise-linear, `2` = polynomial |
 | `cost_pg_parameters` | `[0.0, 1.0, 0.0]` | `Vector{Real}` | $/MVA | opf      | Cost model polynomial                                     |
-| `startup`            | `0.0`             | `Real`         | $     | opf      | Startup cost                                              |
-| `shutdown`           | `0.0`             | `Real`         | $     | opf      | Shutdown cost                                             |
 
 ### Photovoltaic Systems (`solar`)
 
@@ -350,8 +348,6 @@ The cost model for a photovoltaic system currently matches that of generators.
 | -------------------- | ----------------- | -------------- | ----- | -------- | --------------------------------------------------------- |
 | `cost_pg_model`      | `2`               | `Int`          |       | opf      | Cost model type, `1` = piecewise-linear, `2` = polynomial |
 | `cost_pg_parameters` | `[0.0, 1.0, 0.0]` | `Vector{Real}` | $/MVA | opf      | Cost model polynomial                                     |
-| `startup`            | `0.0`             | `Real`         | $     | opf      | Startup cost                                              |
-| `shutdown`           | `0.0`             | `Real`         | $     | opf      | Shutdown cost                                             |
 
 ### Wind Turbine Systems (`wind`)
 
