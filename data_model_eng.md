@@ -27,7 +27,7 @@ Valid component types are those that are documented in the sectios below. Each c
 
 Each edge or node component (_i.e._ all those that are not data objects or buses), are expected to have `status` fields to specify whether the component is active or disabled, `bus` or `f_bus` and `t_bus`, to specify the buses that are connected to the component, and `connections` or `f_connections` and `t_connections`, to specify the terminals of the buses that are actively connected in an ordered list. Terminals/connections can be any immutable value, as can bus ids.
 
-Parameter values on components are expected to be specified in SI units by default (where applicable) in the engineering data model. Relevant expected units are noted in the sections below. Where units is listed as watt, real units will be watt * `sbase`. Where units are listed as volt/var, real units will be volt/var * `v_var_scalar`, and multiplied by `vnom`, where that value exists.
+Parameter values on components are expected to be specified in SI units by default (where applicable) in the engineering data model. Relevant expected units are noted in the sections below. Where units is listed as watt, real units will be watt * `v_var_scalar`. Where units are listed as volt/var, real units will be volt/var * `v_var_scalar`, and multiplied by `vnom`, where that value exists.
 
 TODO: Specify units on each component
 
