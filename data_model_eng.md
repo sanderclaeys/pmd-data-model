@@ -23,7 +23,7 @@ Dict{String,Any}(
 )
 ```
 
-Valid component types are those that are documented in the sectios below. Each component object is identified by an `id`, which can be any immutable value, but `id` does not appear inside of the component dictionary, and only appears as keys to the component dictionaries under each component type.
+Valid component types are those that are documented in the sectios below. Each component object is identified by an `id`, which can be any immutable value (`id <: Any`), but `id` does not appear inside of the component dictionary, and only appears as keys to the component dictionaries under each component type.
 
 Each edge or node component (_i.e._ all those that are not data objects or buses), are expected to have `status` fields to specify whether the component is active or disabled, `bus` or `f_bus` and `t_bus`, to specify the buses that are connected to the component, and `connections` or `f_connections` and `t_connections`, to specify the terminals of the buses that are actively connected in an ordered list. Terminals/connections can be any immutable value, as can bus ids.
 
