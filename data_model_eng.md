@@ -14,7 +14,7 @@ The data structure is in the following format
 Dict{String,Any}(
     "component_type" => Dict{Any,Dict{String,Any}}(
         id => Dict{String,Any}(
-            "field" => value,
+            "parameter" => value,
             ...
         ),
         ...
@@ -306,21 +306,22 @@ This is a special case of `shunt` with its own data category for easier tracking
 | `qd_nom_i` |         | `Real` |       | `model=="zip"` |             |
 | `qd_nom_p` |         | `Real` |       | `model=="zip"` |             |
 
-### Generators or Induction Machines or Asychronous Machines? (`generator` or `asychronous_machine` or `induction_machine`?)
+### Generators `generator` (or Synchronous Machines `synchronous_machine`?)
 
-| Name             | Default | Type           | Units | Required | Description                                                                                                 |
-| ---------------- | ------- | -------------- | ----- | -------- | ----------------------------------------------------------------------------------------------------------- |
-| `bus`            |         | `Any`          |       | always   | id of bus connection                                                                                        |
-| `connections`    |         | `Vector{Any}`  |       | always   | Ordered list of connected conductors                                                                        |
-| `configuration`  | `"wye"` | `String`       |       | always   | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`                                                |
-| `pg_lb`          |         | `Vector{Real}` | watt  | opf      | Lower bound on active power generation per phase, `size=nphases`                                            |
-| `pg_ub`          |         | `Vector{Real}` | watt  | opf      | Upper bound on active power generation per phase, `size=nphases`                                            |
-| `qg_lb`          |         | `Vector{Real}` | var   | opf      | Lower bound on reactive power generation per phase, `size=nphases`                                          |
-| `qg_ub`          |         | `Vector{Real}` | var   | opf      | Upper bound on reactive power generation per phase, `size=nphases`                                          |
-| `pg`             |         | `Vector{Real}` | watt  |          | Present active power generation per phase, `size=nphases`                                                   |
-| `qg`             |         | `Vector{Real}` | var   |          | Present reactive power generation per phase, `size=nphases`                                                 |
-| `status`         | `1`     | `Bool`         |       | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                     |
-| `{}_time_series` |         | `Any`          |       |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for any parameter |
+| Name             | Default | Type           | Units | Required | Description                                                                                                                                                                                                     |
+| ---------------- | ------- | -------------- | ----- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bus`            |         | `Any`          |       | always   | id of bus connection                                                                                                                                                                                            |
+| `connections`    |         | `Vector{Any}`  |       | always   | Ordered list of connected conductors                                                                                                                                                                            |
+| `configuration`  | `"wye"` | `String`       |       | always   | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`                                                                                                                                                    |
+| `model`          | `1`     | `Int`          |       | always   | Model of the generator. `1`: Constant P,Q; `2`: Constant P,\|V\|; `3`: Constant Z; `4`: Current-limited, constant P,Q (e.g. some inverters).  `1` and `2` supported, other models have plans for future support |
+| `pg_lb`          |         | `Vector{Real}` | watt  | opf      | Lower bound on active power generation per phase, `size=nphases`                                                                                                                                                |
+| `pg_ub`          |         | `Vector{Real}` | watt  | opf      | Upper bound on active power generation per phase, `size=nphases`                                                                                                                                                |
+| `qg_lb`          |         | `Vector{Real}` | var   | opf      | Lower bound on reactive power generation per phase, `size=nphases`                                                                                                                                              |
+| `qg_ub`          |         | `Vector{Real}` | var   | opf      | Upper bound on reactive power generation per phase, `size=nphases`                                                                                                                                              |
+| `pg`             |         | `Vector{Real}` | watt  |          | Present active power generation per phase, `size=nphases`                                                                                                                                                       |
+| `qg`             |         | `Vector{Real}` | var   |          | Present reactive power generation per phase, `size=nphases`                                                                                                                                                     |
+| `status`         | `1`     | `Bool`         |       | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                                                                                         |
+| `{}_time_series` |         | `Any`          |       |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for any parameter                                                                                                     |
 
 #### `generator` Cost Model
 
@@ -360,7 +361,7 @@ The cost model for a photovoltaic system currently matches that of generators.
 
 ### Wind Turbine Systems (`wind`)
 
-TODO
+Wind turbine systems are most closely approximated by induction machines, also known as asynchornous machines. These are not currently supported, but there is plans to support them in the future.
 
 ### Storage (`storage`)
 
