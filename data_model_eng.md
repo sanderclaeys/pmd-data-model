@@ -29,8 +29,6 @@ Each edge or node component (_i.e._ all those that are not data objects or buses
 
 Parameter values on components are expected to be specified in SI units by default (where applicable) in the engineering data model. Relevant expected units are noted in the sections below. Where units is listed as watt, real units will be watt * `v_var_scalar`. Where units are listed as volt/var, real units will be volt/var * `v_var_scalar`, and multiplied by `vnom`, where that value exists.
 
-TODO: Specify units on each component
-
 ## Root-Level Properties
 
 At the root level of the data structure, the following fields can be found.
@@ -225,11 +223,11 @@ Special Case of switch, with its own separate component category for easier trac
 
 ### Line Reactors (`line_reactor`)
 
-TODO
+Line reactors are _e.g._ inductors can can be used to protect against input power distruptions
 
 ### Series Capacitors (`series_capacitor`)
 
-TODO
+Series capacitors can be used to _e.g._ compensate inductance on lines
 
 ## Node Objects
 
