@@ -29,6 +29,8 @@ Each edge or node component (_i.e._ all those that are not data objects or buses
 
 Parameter values on components are expected to be specified in SI units by default (where applicable) in the engineering data model. Relevant expected units are noted in the sections below. Where units is listed as watt, real units will be watt * `v_var_scalar`. Where units are listed as volt/var, real units will be volt/var * `v_var_scalar`, and multiplied by `vnom`, where that value exists.
 
+Parameters that are required "always" but have a default, means that those parameters are expected, but if they do not exist they will be assumed to the be default. Required always in this context means that the conversion tools require those fields, but in some cases we can make reasonable assumptions about their default values.
+
 ## Root-Level Properties
 
 At the root level of the data structure, the following fields can be found.
@@ -65,12 +67,12 @@ The data model below allows us to include buses of arbitrary many terminals (_i.
 | `vm_ub`          |             | `Vector{Real}`  |        | opf      | Maximum conductor-to-ground voltage magnitude, `size=nphases`                                                                        |
 | `vm_pair_ub`     |             | `Vector{Tuple}` |        | opf      | _e.g._  `[(1,2,210)]` means \|U1-U2\|>210                                                                                            |
 | `vm_pair_lb`     |             | `Vector{Tuple}` |        | opf      | _e.g._  `[(1,2,230)]` means \|U1-U2\|<230                                                                                            |
-| `grounded`       | `[]`        | `Vector{Any}`   |        |          | List of terminals which are grounded                                                                                                 |
-| `rg`             | `[]`        | `Vector{Real}`  |        |          | Resistance of each defined grounding, `size=length(grounded)`                                                                        |
-| `xg`             | `[]`        | `Vector{Real}`  |        |          | Reactance of each defined grounding, `size=length(grounded)`                                                                         |
+| `grounded`       | `[]`        | `Vector{Any}`   |        | always   | List of terminals which are grounded                                                                                                 |
+| `rg`             | `[]`        | `Vector{Real}`  |        | always   | Resistance of each defined grounding, `size=length(grounded)`                                                                        |
+| `xg`             | `[]`        | `Vector{Real}`  |        | always   | Reactance of each defined grounding, `size=length(grounded)`                                                                         |
 | `vm`             |             | `Vector{Real}`  | volt   |          | Voltage magnitude at bus                                                                                                             |
 | `va`             |             | `Vector{Real}`  | degree |          | Voltage angle at bus                                                                                                                 |
-| `status`         | `1`         | `Bool`          |        | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                              |
+| `status`         | `1`         | `Int`           |        | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                              |
 | `{}_time_series` |             | `Any`           |        |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `vm`, `va`, `vm_lb`, `vm_ub` |
 
 The tricky part is how to encode bounds for these type of buses. The most general is defining a list of three-tuples. Take for example a typical bus in a three-phase, four-wire network, where `terminals=[a,b,c,n]`. Such a bus might have
@@ -125,28 +127,30 @@ These objects represent edges on the power grid and therefore require `f_bus` an
 
 This is a pi-model branch. When a `linecode` is given, and any of `rs`, `xs`, `b_fr`, `b_to`, `g_fr` or `g_to` are specified, any of those overwrite the values on the linecode.
 
-| Name             | Default | Type           | Units            | Required     | Description                                                                                                                          |
-| ---------------- | ------- | -------------- | ---------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `f_bus`          |         | `Any`          |                  | always       | id of from-side bus connection                                                                                                       |
-| `t_bus`          |         | `Any`          |                  | always       | id of to-side bus connection                                                                                                         |
-| `f_connections`  |         | `Vector{Any}`  |                  | always       | Indicates for each conductor, to which terminal of the `f_bus` it connects                                                           |
-| `t_connections`  |         | `Vector{Any}`  |                  | always       | Indicates for each conductor, to which terminal of the `t_bus` it connects                                                           |
-| `linecode`       |         | `Any`          |                  | `!rs && !xs` | id of an associated linecode                                                                                                         |
-| `rs`             |         | `Matrix{Real}` | ohm/meter        | `!linecode`  | Series resistance matrix, `size=(nconductors,nconductors)`                                                                           |
-| `xs`             |         | `Matrix{Real}` | ohm/meter        | `!linecode`  | Series reactance matrix, `size=(nconductors,nconductors)`                                                                            |
-| `g_fr`           |         | `Matrix{Real}` | siemens/meter/Hz |              | From-side conductance, `size=(nconductors,nconductors)`                                                                              |
-| `b_fr`           |         | `Matrix{Real}` | siemens/meter/Hz |              | From-side susceptance, `size=(nconductors,nconductors)`                                                                              |
-| `g_to`           |         | `Matrix{Real}` | siemens/meter/Hz |              | To-side conductance, `size=(nconductors,nconductors)`                                                                                |
-| `b_to`           |         | `Matrix{Real}` | siemens/meter/Hz |              | To-side susceptance, `size=(nconductors,nconductors)`                                                                                |
-| `length`         | `1.0`   | `Real`         | meter            |              | Length of the line                                                                                                                   |
-| `cm_ub`          |         | `Vector{Real}` | amp              | opf          | Symmetrically applicable current rating, `size=nconductors`                                                                          |
-| `sm_ub`          |         | `Vector{Real}` | watt             | opf          | Symmetrically applicable power rating, `size=nconductors`                                                                            |
-| `pl_fr`          |         | `Vector{Real}` | watt             |              | Present active power flow on the from-side                                                                                           |
-| `ql_fr`          |         | `Vector{Real}` | watt             |              | Present reactive power flow on the from-side                                                                                         |
-| `pl_to`          |         | `Vector{Real}` | watt             |              | Present active power flow on the to-side                                                                                             |
-| `ql_to`          |         | `Vector{Real}` | watt             |              | Present reactive power flow on the to-side                                                                                           |
-| `status`         | `1`     | `Bool`         |                  | always       | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                              |
-| `{}_time_series` |         | `Any`          |                  |              | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `rs`, `xs`, `cm_ub`, `sm_ub` |
+| Name             | Default                | Type           | Units            | Required     | Description                                                                                                                          |
+| ---------------- | ---------------------- | -------------- | ---------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `f_bus`          |                        | `Any`          |                  | always       | id of from-side bus connection                                                                                                       |
+| `t_bus`          |                        | `Any`          |                  | always       | id of to-side bus connection                                                                                                         |
+| `f_connections`  |                        | `Vector{Any}`  |                  | always       | Indicates for each conductor, to which terminal of the `f_bus` it connects                                                           |
+| `t_connections`  |                        | `Vector{Any}`  |                  | always       | Indicates for each conductor, to which terminal of the `t_bus` it connects                                                           |
+| `linecode`       |                        | `Any`          |                  | `!rs && !xs` | id of an associated linecode                                                                                                         |
+| `rs`             |                        | `Matrix{Real}` | ohm/meter        | `!linecode`  | Series resistance matrix, `size=(nconductors,nconductors)`                                                                           |
+| `xs`             |                        | `Matrix{Real}` | ohm/meter        | `!linecode`  | Series reactance matrix, `size=(nconductors,nconductors)`                                                                            |
+| `g_fr`           |                        | `Matrix{Real}` | siemens/meter/Hz |              | From-side conductance, `size=(nconductors,nconductors)`                                                                              |
+| `b_fr`           |                        | `Matrix{Real}` | siemens/meter/Hz |              | From-side susceptance, `size=(nconductors,nconductors)`                                                                              |
+| `g_to`           |                        | `Matrix{Real}` | siemens/meter/Hz |              | To-side conductance, `size=(nconductors,nconductors)`                                                                                |
+| `b_to`           |                        | `Matrix{Real}` | siemens/meter/Hz |              | To-side susceptance, `size=(nconductors,nconductors)`                                                                                |
+| `length`         | `1.0`                  | `Real`         | meter            | always       | Length of the line                                                                                                                   |
+| `cm_ub`          |                        | `Vector{Real}` | amp              | opf          | Symmetrically applicable current rating, `size=nconductors`                                                                          |
+| `sm_ub`          |                        | `Vector{Real}` | watt             | opf          | Symmetrically applicable power rating, `size=nconductors`                                                                            |
+| `pl_fr`          |                        | `Vector{Real}` | watt             |              | Present active power flow on the from-side                                                                                           |
+| `ql_fr`          |                        | `Vector{Real}` | watt             |              | Present reactive power flow on the from-side                                                                                         |
+| `pl_to`          |                        | `Vector{Real}` | watt             |              | Present active power flow on the to-side                                                                                             |
+| `ql_to`          |                        | `Vector{Real}` | watt             |              | Present reactive power flow on the to-side                                                                                           |
+| `vad_lb`         | `fill(-60.0, nphases)` | `Vector{Real}` | degree           | opf          | Voltage angle difference lower bound                                                                                                 |
+| `vad_ub`         | `fill(60.0, nphases)`  | `Vector{Real}` | degree           | opf          | Voltage angle difference upper bound                                                                                                 |
+| `status`         | `1`                    | `Int`          |                  | always       | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                              |
+| `{}_time_series` |                        | `Any`          |                  |              | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `rs`, `xs`, `cm_ub`, `sm_ub` |
 
 - which takes presidence, `cm_ub` or `sm_ub` if both are specified?
 
@@ -163,12 +167,17 @@ These are n-winding (`nwinding`), n-phase (`nphase`), lossy transformers. Note t
 | `configurations` | `fill("wye", nwindings)`               | `Vector{String}`       |       | always                             | `"wye"` or `"delta"`. List of configuration for each winding, `size=nwindings`                                                                     |
 | `xsc`            | `[0.0]`                                | `Vector{Real}`         | ohm   |                                    | List of short-circuit reactances between each pair of windings; enter as a list of the upper-triangle elements                                     |
 | `rs`             | `zeros(nwindings)`                     | `Vector{Real}`         | ohm   |                                    | List of the winding resistance for each winding                                                                                                    |
+| `imag`           |                                        | `Real`                 |       |                                    |                                                                                                                                                    |
+| `noloadloss`     |                                        | `Real`                 |       |                                    |                                                                                                                                                    |
 | `tm_nom`         | `ones(nwindings)`                      | `Vector{Real}`         |       |                                    | Nominal tap ratio for the transformer, `size=nwindings` (multiplier)                                                                               |
 | `tm_ub`          |                                        | `Vector{Vector{Real}}` |       | opf                                | Maximum tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                        |
 | `tm_lb`          |                                        | `Vector{Vector{Real}}` |       | opf                                | Minimum tap ratio for for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                    |
-| `tm_set`         | `fill(fill(1.0, nphases), nwindings)`  | `Vector{Vector{Real}}` |       |                                    | Set tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                            |
-| `tm_fix`         | `fill(fill(true, nphases), nwindings)` | `Vector{Vector{Bool}}` |       |                                    | Indicates for each winding and phase whether the tap ratio is fixed, `size=((nphases), nwindings)`                                                 |
-| `status`         | `1`                                    | `Bool`                 |       | always                             | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                            |
+| `tm_set`         | `fill(fill(1.0, nphases), nwindings)`  | `Vector{Vector{Real}}` |       | always                             | Set tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                            |
+| `tm_fix`         | `fill(fill(true, nphases), nwindings)` | `Vector{Vector{Bool}}` |       | always                             | Indicates for each winding and phase whether the tap ratio is fixed, `size=((nphases), nwindings)`                                                 |
+| `polarity`       | `fill(1, nwindings)`                   | `Vector{Int}`          |       | always                             |                                                                                                                                                    |
+| `vnom`           |                                        | `Vector{Real}`         | volt  | always                             |                                                                                                                                                    |
+| `snom`           |                                        | `Vector{Real}`         | watt  | always                             |                                                                                                                                                    |
+| `status`         | `1`                                    | `Int`                  |       | always                             | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                            |
 | `{}_time_series` |                                        | `Any`                  |       |                                    | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `tm`, `tm_fix`, `tm_set`, `tm_ub`, `tm_lb` |
 
 #### Assymetric, Lossless, Two-Winding (AL2W) Transformers
@@ -209,7 +218,7 @@ Switches without any of `rs`, `xs`, `g_fr`, `b_fr`, `g_to`, `b_to` defined are a
 | `psw`            |         | `Vector{Real}` | watt    |          | Present value of active power flow across the switch                                                                                          |
 | `qsw`            |         | `Vector{Real}` | var     |          | Present value of reactive power flow across the switch                                                                                        |
 | `state`          | `1`     | `Int`          |         | always   | `1`: closed or `0`: open, to indicate state of switch                                                                                         |
-| `status`         | `1`     | `Bool`         |         | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                       |
+| `status`         | `1`     | `Int`          |         | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                       |
 | `{}_time_series` |         | `Any`          |         |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `state`, `rs`, `xs`, `cm_ub`, `sm_ub` |
 
 #### Fuses (`fuse`)
@@ -254,7 +263,7 @@ This is a special case of `shunt` with its own data category for easier tracking
 | `bus`            |         | `Any`          |         | always   | id of bus connection                                                                                         |
 | `connections`    |         | `Vector{Any}`  |         | always   | Ordered list of connected conductors, `size=nconductors`                                                     |
 | `configuration`  | `"wye"` | `String`       |         | always   | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`. For `"delta"`, 2 or 3 connections only         |
-| `bs`             |         | `Vector{Real}` | siemens | always   | Conductance, `size=(nconductors,nconductors)`                                                                |
+| `bs`             |         | `Matrix{Real}` | siemens | always   | Conductance, `size=(nconductors,nconductors)`                                                                |
 | `vnom`           |         | `Real`         | volt    | always   | Nominal voltage (multiplier)                                                                                 |
 | `status`         | `1`     | `Bool`         |         | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                      |
 | `{}_time_series` |         | `Any`          |         |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `bs` |
@@ -268,7 +277,7 @@ This is a special case of `shunt` with its own data category for easier tracking
 | `bus`            |         | `Any`          |         | always   | id of bus connection                                                                                         |
 | `connections`    |         | `Vector{Any}`  |         | always   | Ordered list of connected conductors, `size=nconductors`                                                     |
 | `configuration`  | `"wye"` | `String`       |         | always   | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`. For `"delta"`, 2 or 3 connections only         |
-| `bs`             |         | `Vector{Real}` | siemens | always   | Conductance, `size=(nconductors,nconductors)`                                                                |
+| `bs`             |         | `Matrix{Real}` | siemens | always   | Conductance, `size=(nconductors,nconductors)`                                                                |
 | `vnom`           |         | `Real`         | volt    | always   | Nominal voltage (multiplier)                                                                                 |
 | `status`         | `1`     | `Bool`         |         | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                      |
 | `{}_time_series` |         | `Any`          |         |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `bs` |
@@ -423,13 +432,13 @@ Linecodes are easy ways to specify properties common to multiple lines.
 
 | Name             | Default | Type           | Units            | Required | Description                                                                                                       |
 | ---------------- | ------- | -------------- | ---------------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
-| `rs`             |         | `Matrix{Real}` | ohm/meter        |          | Series resistance, `size=(nconductors,nconductors)`                                                               |
-| `xs`             |         | `Matrix{Real}` | ohm/meter        |          | Series reactance, `size=(nconductors,nconductors)`                                                                |
-| `g_fr`           |         | `Matrix{Real}` | siemens/meter/Hz |          | From-side conductance, `size=(nconductors,nconductors)`                                                           |
-| `b_fr`           |         | `Matrix{Real}` | siemens/meter/Hz |          | From-side susceptance, `size=(nconductors,nconductors)`                                                           |
-| `g_to`           |         | `Matrix{Real}` | siemens/meter/Hz |          | To-side conductance, `size=(nconductors,nconductors)`                                                             |
-| `b_to`           |         | `Matrix{Real}` | siemens/meter/Hz |          | To-side susceptance, `size=(nconductors,nconductors)`                                                             |
-| `cm_ub`          |         | `Vector{Real}` | ampere           |          | maximum current per conductor, symmetrically applicable                                                           |
+| `rs`             |         | `Matrix{Real}` | ohm/meter        | always   | Series resistance, `size=(nconductors,nconductors)`                                                               |
+| `xs`             |         | `Matrix{Real}` | ohm/meter        | always   | Series reactance, `size=(nconductors,nconductors)`                                                                |
+| `g_fr`           |         | `Matrix{Real}` | siemens/meter/Hz | always   | From-side conductance, `size=(nconductors,nconductors)`                                                           |
+| `b_fr`           |         | `Matrix{Real}` | siemens/meter/Hz | always   | From-side susceptance, `size=(nconductors,nconductors)`                                                           |
+| `g_to`           |         | `Matrix{Real}` | siemens/meter/Hz | always   | To-side conductance, `size=(nconductors,nconductors)`                                                             |
+| `b_to`           |         | `Matrix{Real}` | siemens/meter/Hz | always   | To-side susceptance, `size=(nconductors,nconductors)`                                                             |
+| `cm_ub`          |         | `Vector{Real}` | ampere           | always   | maximum current per conductor, symmetrically applicable                                                           |
 | `{}_time_series` |         | `Any`          |                  |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `rs`, `xs`, `cm_ub` |
 
 ### Transformer Codes (`xfmrcode`)
@@ -438,14 +447,14 @@ Transformer codes are easy ways to specify properties common to multiple transfo
 
 | Name             | Default                                | Type                   | Units | Required | Description                                                                                                                                               |
 | ---------------- | -------------------------------------- | ---------------------- | ----- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `configurations` | `fill("wye", nwindings)`               | `Vector{String}`       |       |          | `"wye"` or `"delta"`. List of configuration for each winding, `size=nwindings`                                                                            |
-| `xsc`            | `[0.0]`                                | `Vector{Real}`         | ohm   |          | List of short-circuit reactances between each pair of windings; enter as a list of the upper-triangle elements                                            |
-| `rs`             | `zeros(nwindings)`                     | `Vector{Real}`         | ohm   |          | List of the winding resistance for each winding                                                                                                           |
+| `configurations` | `fill("wye", nwindings)`               | `Vector{String}`       |       | always   | `"wye"` or `"delta"`. List of configuration for each winding, `size=nwindings`                                                                            |
+| `xsc`            | `[0.0]`                                | `Vector{Real}`         | ohm   | always   | List of short-circuit reactances between each pair of windings; enter as a list of the upper-triangle elements                                            |
+| `rs`             | `zeros(nwindings)`                     | `Vector{Real}`         | ohm   | always   | List of the winding resistance for each winding                                                                                                           |
 | `tm_nom`         | `ones(nwindings)`                      | `Vector{Real}`         |       |          | Nominal tap ratio for the transformer, `size=nwindings` (multiplier)                                                                                      |
-| `tm_ub`          |                                        | `Vector{Vector{Real}}` |       |          | Maximum tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                               |
-| `tm_lb`          |                                        | `Vector{Vector{Real}}` |       |          | Minimum tap ratio for for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                           |
-| `tm_set`         | `fill(fill(1.0, nphases), nwindings)`  | `Vector{Vector{Real}}` |       |          | Set tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                                   |
-| `tm_fix`         | `fill(fill(true, nphases), nwindings)` | `Vector{Vector{Bool}}` |       |          | Indicates for each winding and phase whether the tap ratio is fixed, `size=((nphases), nwindings)`                                                        |
+| `tm_ub`          |                                        | `Vector{Vector{Real}}` |       | opf      | Maximum tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                               |
+| `tm_lb`          |                                        | `Vector{Vector{Real}}` |       | opf      | Minimum tap ratio for for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                           |
+| `tm_set`         | `fill(fill(1.0, nphases), nwindings)`  | `Vector{Vector{Real}}` |       | always   | Set tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                                   |
+| `tm_fix`         | `fill(fill(true, nphases), nwindings)` | `Vector{Vector{Bool}}` |       | always   | Indicates for each winding and phase whether the tap ratio is fixed, `size=((nphases), nwindings)`                                                        |
 | `{}_time_series` |                                        | `Any`                  |       |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `rs`, `xsc`, `tm_nom`, `tm_ub`, `tm_lb`, `tm_set`, `tm_fix` |
 
 ### Voltage Zones (`voltage_zone`)
