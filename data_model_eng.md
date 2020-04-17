@@ -194,7 +194,7 @@ Special case of the Generic transformer. These are transformers are assymetric (
 
 ### Switches (`switch`)
 
-Switches without any of `rs`, `xs`, `g_fr`, `b_fr`, `g_to`, `b_to` defined are assumed to be lossless. If lossy parameters are defined, `switch` objects will be decomposed into virtual `branch` & `bus`, and an ideal `switch`.
+Switches without any of `rs`, `xs`, `g_fr`, `b_fr`, `g_to`, `b_to` or alternatively, a linecode, defined the switch will be treated as lossless. If lossy parameters are defined, `switch` objects will be decomposed into virtual `branch` & `bus`, and an ideal `switch`.
 
 | Name             | Default | Type           | Units   | Required | Description                                                                                                                                   |
 | ---------------- | ------- | -------------- | ------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -204,6 +204,7 @@ Switches without any of `rs`, `xs`, `g_fr`, `b_fr`, `g_to`, `b_to` defined are a
 | `t_connections`  |         | `Vector{Any}`  |         | always   | Indicates for each conductor, to which terminal of the `t_bus` it connects                                                                    |
 | `cm_ub`          |         | `Vector{Real}` | amp     | opf      | Symmetrically applicable current rating                                                                                                       |
 | `sm_ub`          |         | `Vector{Real}` | watt    | opf      | Symmetrically applicable power rating                                                                                                         |
+| `linecode`       |         | `String`       |         |          | id of an associated linecode                                                                                                                  |
 | `rs`             |         | `Matrix{Real}` | ohm     |          | Series resistance matrix, `size=(nphases,nphases)`                                                                                            |
 | `xs`             |         | `Matrix{Real}` | ohm     |          | Series reactance matrix, `size=(nphases,nphases)`                                                                                             |
 | `g_fr`           |         | `Matrix{Real}` | siemens |          | From-side conductance, `size=(nphases,nphases)`,                                                                                              |
@@ -243,8 +244,8 @@ These are objects that have single bus connections. Every object will have at le
 | ---------------- | ------- | -------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
 | `bus`            |         | `Any`          |         | always   | id of bus connection                                                                                               |
 | `connections`    |         | `Vector{Any}`  |         | always   | Ordered list of connected conductors                                                                               |
-| `gs`             |         | `Matrix{Real}` | siemens | always   | Conductance, `size=(|connections|,|connections|)`                                                                              |
-| `bs`             |         | `Matrix{Real}` | siemens | always   | Susceptance, `size=(|connections|,|connections|)`                                                                              |
+| `gs`             |         | `Matrix{Real}` | siemens | always   | Conductance, `size=(|connections|,|connections|)`                                                                  |
+| `bs`             |         | `Matrix{Real}` | siemens | always   | Susceptance, `size=(|connections|,|connections|)`                                                                  |
 | `status`         | `1`     | `Bool`         |         | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                            |
 | `{}_time_series` |         | `Any`          |         |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `gs`, `bs` |
 
@@ -278,35 +279,35 @@ This is a special case of `shunt` with its own data category for easier tracking
 
 ### Loads (`load`)
 
-| Name             | Default            | Type           | Units | Required | Description                                                                                                                             |
-| ---------------- | ------------------ | -------------- | ----- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `bus`            |                    | `Any`          |       | always   | id of bus connection                                                                                                                    |
-| `connections`    |                    | `Vector{Any}`  |       | always   | Ordered list of connected conductors                                                                                                    |
-| `configuration`  | `"wye"`            | `String`       |       | always   | `"wye"` or "`delta`". If `"wye"`, `connections[end]=neutral`                                                                            |
-| `model`          | `"constant_power"` | `String`       |       | always   | `"constant_power"`, `"constant_impedance"`, `"constant_current"`, `"exponential"`, or `"zip"`. Indicates the type of voltage-dependency |
-| `pd_nom`         |                    | `Vector{Real}` | watt  | always   | Nominal active load, with respect to `vnom`, `size=nphases`                                                                             |
-| `qd_nom`         |                    | `Vector{Real}` | var   | always   | Nominal reactive load, with respect to `vnom`, `size=nphases`                                                                           |
-| `vnom`           |                    | `Real`         | volt  | `model!="constant_power"`   | Nominal voltage (multiplier)                                                                                                            |
-| `status`         | `1`                | `Bool`         |       | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                 |
-| `{}_time_series` |                    | `Any`          |       |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `pd_nom`, `qd_nom`              |
+| Name             | Default            | Type           | Units | Required                  | Description                                                                                                                             |
+| ---------------- | ------------------ | -------------- | ----- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `bus`            |                    | `Any`          |       | always                    | id of bus connection                                                                                                                    |
+| `connections`    |                    | `Vector{Any}`  |       | always                    | Ordered list of connected conductors                                                                                                    |
+| `configuration`  | `"wye"`            | `String`       |       | always                    | `"wye"` or "`delta`". If `"wye"`, `connections[end]=neutral`                                                                            |
+| `model`          | `"constant_power"` | `String`       |       | always                    | `"constant_power"`, `"constant_impedance"`, `"constant_current"`, `"exponential"`, or `"zip"`. Indicates the type of voltage-dependency |
+| `pd_nom`         |                    | `Vector{Real}` | watt  | always                    | Nominal active load, with respect to `vnom`, `size=nphases`                                                                             |
+| `qd_nom`         |                    | `Vector{Real}` | var   | always                    | Nominal reactive load, with respect to `vnom`, `size=nphases`                                                                           |
+| `vnom`           |                    | `Real`         | volt  | `model!="constant_power"` | Nominal voltage (multiplier)                                                                                                            |
+| `status`         | `1`                | `Bool`         |       | always                    | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                 |
+| `{}_time_series` |                    | `Any`          |       |                           | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `pd_nom`, `qd_nom`              |
 
 Multi-phase loads define a number of individual loads connected between two terminals each. How they are connected, is defined both by `configuration` and `connections`. The table below indicates the value of `configuration` and lengths of the other properties for a consistent definition,
 
 | `configuration` | `|connections|` | `|pd_nom|=|qd_nom|=|pd_exp|=...` |
-|-|-|-|
-|`delta`|`2`|`1`|
-|`delta`|`3`|`3`|
-|`wye`|`2`|`1`|
-|`wye`|`3`|`2`|
-|`wye`|`N`|`N-1`|
+| --------------- | --------------- | -------------------------------- |
+| `delta`         | `2`             | `1`                              |
+| `delta`         | `3`             | `3`                              |
+| `wye`           | `2`             | `1`                              |
+| `wye`           | `3`             | `2`                              |
+| `wye`           | `N`             | `N-1`                            |
 
 Note that for delta loads, only 2 and 3 connections are allowed. Each individual load `i` is connected between two terminals, exposed to a voltage magnitude `v[i]`, which leads to a consumption `pd[i]+j*qd[i]`. The `model` then defines the relationship between these quantities,
 
-| model | `pd[i]/pd_nom[i]=` | `qd[i]/qd_nom[i]=` |
-|-|-|-|
-|`constant_power`|`1`|`1`|
-|`constant_current`|`(v[i]/vnom)`|`(v[i]/vnom)`|
-|`constant_impedance`|`(v[i]/vnom)^2`|`(v[i]/vnom)^2`|
+| model                | `pd[i]/pd_nom[i]=` | `qd[i]/qd_nom[i]=` |
+| -------------------- | ------------------ | ------------------ |
+| `constant_power`     | `1`                | `1`                |
+| `constant_current`   | `(v[i]/vnom)`      | `(v[i]/vnom)`      |
+| `constant_impedance` | `(v[i]/vnom)^2`    | `(v[i]/vnom)^2`    |
 
 Two more model types are supported, which need additional fields and are defined below.
 
@@ -325,15 +326,15 @@ Two more model types are supported, which need additional fields and are defined
 - `(pd[i]/pd_nom) = pd_cz[i]*(v[i]/vnom)^2 + pd_ci[i]*(v[i]/vnom) + pd_cp[i]`
 - `(qd[i]/qd_nom) = qd_cz[i]*(v[i]/vnom)^2 + qd_ci[i]*(v[i]/vnom) + qd_cp[i]`
 
-| Name       | Default | Type   | Units | Required       | Description |
-| ---------- | ------- | ------ | ----- | -------------- | ----------- |
-| `vnom`           |                    | `Real`         | volt  | `model=="zip"`   | Nominal voltage (multiplier)                                                                                                            |
-| `pd_cz` |         | `Real` |       | `model=="zip"` |             |
-| `pd_ci` |         | `Real` |       | `model=="zip"` |             |
-| `pd_cp` |         | `Real` |       | `model=="zip"` |             |
-| `qd_cz` |         | `Real` |       | `model=="zip"` |             |
-| `qd_ci` |         | `Real` |       | `model=="zip"` |             |
-| `qd_cp` |         | `Real` |       | `model=="zip"` |             |
+| Name    | Default | Type   | Units | Required       | Description                  |
+| ------- | ------- | ------ | ----- | -------------- | ---------------------------- |
+| `vnom`  |         | `Real` | volt  | `model=="zip"` | Nominal voltage (multiplier) |
+| `pd_cz` |         | `Real` |       | `model=="zip"` |                              |
+| `pd_ci` |         | `Real` |       | `model=="zip"` |                              |
+| `pd_cp` |         | `Real` |       | `model=="zip"` |                              |
+| `qd_cz` |         | `Real` |       | `model=="zip"` |                              |
+| `qd_ci` |         | `Real` |       | `model=="zip"` |                              |
+| `qd_cp` |         | `Real` |       | `model=="zip"` |                              |
 
 ### Generators `generator` (or Synchronous Machines `synchronous_machine`?)
 
@@ -343,6 +344,7 @@ Two more model types are supported, which need additional fields and are defined
 | `connections`    |         | `Vector{Any}`  |       | always   | Ordered list of connected conductors                                                                                                                                                                            |
 | `configuration`  | `"wye"` | `String`       |       | always   | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`                                                                                                                                                    |
 | `model`          | `1`     | `Int`          |       | always   | Model of the generator. `1`: Constant P,Q; `2`: Constant P,\|V\|; `3`: Constant Z; `4`: Current-limited, constant P,Q (e.g. some inverters).  `1` and `2` supported, other models have plans for future support |
+| `vg`             |         | `Vector{Real}` | volt  | always   | Voltage magnitude setpoint                                                                                                                                                                                      |
 | `pg_lb`          |         | `Vector{Real}` | watt  | opf      | Lower bound on active power generation per phase, `size=nphases`                                                                                                                                                |
 | `pg_ub`          |         | `Vector{Real}` | watt  | opf      | Upper bound on active power generation per phase, `size=nphases`                                                                                                                                                |
 | `qg_lb`          |         | `Vector{Real}` | var   | opf      | Lower bound on reactive power generation per phase, `size=nphases`                                                                                                                                              |
