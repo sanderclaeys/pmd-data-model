@@ -365,7 +365,7 @@ Two more model types are supported, which need additional fields and are defined
 
 #### `generator` Cost Model
 
-The generator cost model is specified by the following fields.
+The generator cost model is currently specified by the following fields.
 
 | Name                 | Default           | Type           | Units | Used         | Description                                                                                                                         |
 | -------------------- | ----------------- | -------------- | ----- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -374,6 +374,8 @@ The generator cost model is specified by the following fields.
 | `{}_time_series`     |                   | `Any`          |       | multinetwork | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `cost_pg_model`, `cost_pg_parameters` |
 
 ### Photovoltaic Systems (`solar`)
+
+TODO Loss model, Inverter settings, Irradiance Model
 
 | Name             | Default | Type           | Units | Used         | Description                                                                                                                                            |
 | ---------------- | ------- | -------------- | ----- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -388,8 +390,6 @@ The generator cost model is specified by the following fields.
 | `qg`             |         | `Vector{Real}` | var   | solution     | Present reactive power generation per phase, `size=nphases`                                                                                            |
 | `status`         | `1`     | `Bool`         |       | always       | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                                |
 | `{}_time_series` |         | `Any`          |       | multinetwork | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `pg_lb`, `qg_lb`, `pg_ub`, `qg_ub`, `pg`, `qg` |
-
-#### Irradiation Model
 
 #### `solar` Cost Model
 
@@ -417,17 +417,17 @@ A storage object is a flexible component that can represent a variety of energy 
 | `connections`          |         | `Vector{Any}`  |         | always       | Ordered list of connected conductors, `size=nconductors`                                                                                                                                                                                |
 | `configuration`        | `"wye"` | `String`       |         | always       | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`                                                                                                                                                                            |
 | `energy`               |         | `Real`         | watt-hr | always       | Stored energy                                                                                                                                                                                                                           |
-| `energy_ub`            |         | `Real`         |         | opf          |                                                                                                                                                                                                                                         |
-| `charge_ub`            |         | `Real`         |         | opf          |                                                                                                                                                                                                                                         |
-| `discharge_ub`         |         | `Real`         |         | opf          |                                                                                                                                                                                                                                         |
+| `energy_ub`            |         | `Real`         |         | opf          | maximum energy rating                                                                                                                                                                                                                   |
+| `charge_ub`            |         | `Real`         |         | opf          | maximum charge rating                                                                                                                                                                                                                   |
+| `discharge_ub`         |         | `Real`         |         | opf          | maximum discharge rating                                                                                                                                                                                                                |
 | `sm_ub`                |         | `Vector{Real}` | watt    | opf          | Power rating, `size=nphases`                                                                                                                                                                                                            |
 | `cm_ub`                |         | `Vector{Real}` | amp     | opf          | Current rating, `size=nphases`                                                                                                                                                                                                          |
-| `charge_efficiency`    |         | `Real`         |         | always       |                                                                                                                                                                                                                                         |
-| `discharge_efficiency` |         | `Real`         |         | always       |                                                                                                                                                                                                                                         |
+| `charge_efficiency`    |         | `Real`         | percent | always       | charging efficiency (losses)                                                                                                                                                                                                            |
+| `discharge_efficiency` |         | `Real`         | percent | always       | disharging efficiency (losses)                                                                                                                                                                                                          |
 | `qs_ub`                |         | `Vector{Real}` |         | opf          | Maximum reactive power injection, `size=nphases`                                                                                                                                                                                        |
 | `qs_lb`                |         | `Vector{Real}` |         | opf          | Minimum reactive power injection, `size=nphases`                                                                                                                                                                                        |
-| `rs`                   |         | `Vector{Real}` | ohm     | always       |                                                                                                                                                                                                                                         |
-| `xs`                   |         | `Vector{Real}` | ohm     | always       |                                                                                                                                                                                                                                         |
+| `rs`                   |         | `Vector{Real}` | ohm     | always       | converter resistance                                                                                                                                                                                                                    |
+| `xs`                   |         | `Vector{Real}` | ohm     | always       | converter reactance                                                                                                                                                                                                                     |
 | `pex`                  |         | `Real`         |         | always       | Total active power standby exogenous flow (loss)                                                                                                                                                                                        |
 | `qex`                  |         | `Real`         |         | always       | Total reactive power standby exogenous flow (loss)                                                                                                                                                                                      |
 | `ps`                   |         | `Vector{Real}` | watt    | solution     | Present active power injection                                                                                                                                                                                                          |
