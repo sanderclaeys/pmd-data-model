@@ -230,10 +230,10 @@ Switches without any of `rs`, `xs`, `g_fr`, `b_fr`, `g_to`, `b_to` or alternativ
 
 Special Case of switch, with its own separate component category for easier tracking. Shares the fields of switch, with these additions.
 
-| Name                    | Default | Type     | Units | Used   | Description                                                             |
-| ----------------------- | ------- | -------- | ----- | ------ | ----------------------------------------------------------------------- |
-| `fuse_curve`            | `""`    | `String` |       | always | id of `curve` object that specifies the fuse blowing condition          |
-| `minimum_melting_curve` | `""`    | `String` |       | always | id of `curve` that specifies the minimum melting conditions of the fuse |
+| Name                    | Default | Type     | Units | Used | Description                                                             |
+| ----------------------- | ------- | -------- | ----- | ---- | ----------------------------------------------------------------------- |
+| `fuse_curve`            | `""`    | `String` |       |      | id of `curve` object that specifies the fuse blowing condition          |
+| `minimum_melting_curve` | `""`    | `String` |       |      | id of `curve` that specifies the minimum melting conditions of the fuse |
 
 ### Line Reactors (`line_reactor`)
 
