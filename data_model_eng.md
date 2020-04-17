@@ -75,36 +75,31 @@ The data model below allows us to include buses of arbitrary many terminals (_i.
 | `status`         | `1`         | `Int`           |        | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                              |
 | `{}_time_series` |             | `Any`           |        |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `vm`, `va`, `vm_lb`, `vm_ub` |
 
-The tricky part is how to encode bounds for these type of buses. The most general is defining a list of three-tuples. Take for example a typical bus in a three-phase, four-wire network, where `terminals=[a,b,c,n]`. Such a bus might have
+Each terminal `c` of the bus has an associated complex voltage phasor `v[c]`. There are two types of voltage magnitude bounds. The first type bounds the voltage magnitude of each `v[c]` individually,
+- `lb <= |v[c]| <= ub`
 
-- phase-to-neutral bounds `vm_pn_ub=250`, `vm_pn_lb=210`
-- and phase-to-phase bounds `vm_pp_ub=440`, `vm_pp_lb=360`.
+However, especially in four-wire networks, bounds are more naturally imposed on the difference of two terminal voltages instead, e.g. for terminals `c` and `d`,
+- `lb <= |v[c]-v[d]| <= ub`
 
-We can then define this equivalently as
+This is why we introduce the fields `vm_pair_lb` and `vm_pair_ub`, which define bounds for pairs of terminals,
+- $\forall$ `(c,d,lb)` $\in$ `vm_pair_lb`: `|v[c]-v[d]| >= lb`
+- $\forall$ `(c,d,ub)` $\in$ `vm_pair_ub`: `|v[c]-v[d]| <= ub`
 
-- `vm_pair_ub = [(a,n,250), (b,n,250), (c,n,250), (a,b,440), (b,c,440), (c,a,440)]`
-- `vm_pair_lb = [(a,n,210), (b,n,210), (c,n,210), (a,b,360), (b,c,360), (c,a,360)]`
-
-If terminal `4` is grounding through an impedance `Z=1+j2`, we write
+Finally, we give an example of how grounding impedances should be entered. If terminal `4` is grounded through an impedance `Z=1+j2`, we write
 
 - `grounded=[4]`, `rg=[1]`, `xg=[2]`
 
-Since this might be confusing for novice users, we also allow the user to define bounds through the following component.
-
 ### Special Case: three-phase bus
 
-- Specify bounds relative to some `vnom`? Yes, but in voltage_zones
+For three-phase buses, instead of specifying bounds explicitly for each pair of windings, often we want to specify 'phase-to-phase', 'phase-to-neutral' and 'neutral-to-ground' bounds. This can be done conveniently with a number of additional fields. First, `phases` is a list of the phase terminals, and `neutral` designates a single terminal to be the neutral.
 
-Much of the difficulty arrises from supporting phase-to-phase bounds for both two-phase and three-phase systems. For example, a 2-phase `[a,b]` system only has 1 phase-to-phase bound, whilst a 3-phase system `[a,b,c]` has 3!
+- The bounds `vm_pn_lb` and `vm_pn_ub` specify the same lower and upper bound for the magnitude of the difference of each phase terminal and the neutral.
+- The bounds `vm_pp_lb` and `vm_pp_ub` specify the same lower and upper bound for the magnitude of the difference of all phase terminals.
+- `vm_ng_ub` specifies an upper bound for the neutral terminal, the lower bound is typically zero.
 
-A 4-phase system `[a,b,c,d]` is not well-defined; should there be phase-to-phase bounds for each permutation, _i.e._, `[(a,b), (a,c), (a,d), (b,c), (b,d), (c,d)]`, or only for adjacent ones as it would apply to a 4-phase delta connection, `[(a,b), (b,c), (c,d), (a,d)]`? For three-phase systems these two options coincide.
-
-In order to avoid all of this confusion, we introduce this component, which is at most 3-phase, `|phases|<=3`, and which specifies all bounds symmetrically. For example,
-
-- `phases=[1,2,3], vm_pp_ub=440` implies |U1-U2|, |U2-U3|, |U1-U3| <= 440
-- `phases=[1,2], vm_pn_ub=440` implies |U1-U2| <= 440
-
-This keeps the user from specifying things that do not make sense. This type of bus would suffice for most of the use cases.
+If all of these are specified, these bounds also imply valid bounds for the individual voltage magnitudes,
+- $\forall$ `c` $\in$ `phases`: `vm_pn_lb - vm_ng_ub <= |v[c]| <= vm_pn_ub + vm_ng_ub`
+- `0 <= |v[neutral]|<= vm_ng_ub`
 
 Instead of defining the bounds directly, they can be specified through an associated voltagezone.
 
