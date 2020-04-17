@@ -48,10 +48,10 @@ At the root-level of the data model a `settings` dictionary object is expected, 
 | Name             | Default | Type   | Units | Required | Description                                                    |
 | ---------------- | ------- | ------ | ----- | -------- | -------------------------------------------------------------- |
 | `v_var_scalar`   | `1e3`   | `Real` |       | always   | Scalar for voltage values                                      |
-| `vbase`          |         | `Real` |       | always   | Voltage base (_i.e._ basekv) at `base_bus`                     |
-| `sbase`          |         | `Real` |       | always   | Power base (baseMVA) at `base_bus`                             |
-| `base_bus`       |         | `Any`  |       | always   | id of bus at which `vbase` and `sbase` apply                   |
-| `base_frequency` | `60.0`  | `Real` | Hz    | always   | Frequency base, _i.e._ the base frequency of the whole circuit |
+| `vbase`          |         | `Real` |       |          | Voltage base (_i.e._ basekv) at `base_bus`                     |
+| `sbase`          |         | `Real` |       |          | Power base (baseMVA) at `base_bus`                             |
+| `base_bus`       |         | `Any`  |       |          | id of bus at which `vbase` and `sbase` apply                   |
+| `base_frequency` | `60.0`  | `Real` | Hz    |          | Frequency base, _i.e._ the base frequency of the whole circuit |
 
 ## Buses (`bus`)
 
@@ -75,36 +75,31 @@ The data model below allows us to include buses of arbitrary many terminals (_i.
 | `status`         | `1`         | `Int`           |        | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                              |
 | `{}_time_series` |             | `Any`           |        |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `vm`, `va`, `vm_lb`, `vm_ub` |
 
-The tricky part is how to encode bounds for these type of buses. The most general is defining a list of three-tuples. Take for example a typical bus in a three-phase, four-wire network, where `terminals=[a,b,c,n]`. Such a bus might have
+Each terminal `c` of the bus has an associated complex voltage phasor `v[c]`. There are two types of voltage magnitude bounds. The first type bounds the voltage magnitude of each `v[c]` individually,
+- `lb <= |v[c]| <= ub`
 
-- phase-to-neutral bounds `vm_pn_ub=250`, `vm_pn_lb=210`
-- and phase-to-phase bounds `vm_pp_ub=440`, `vm_pp_lb=360`.
+However, especially in four-wire networks, bounds are more naturally imposed on the difference of two terminal voltages instead, e.g. for terminals `c` and `d`,
+- `lb <= |v[c]-v[d]| <= ub`
 
-We can then define this equivalently as
+This is why we introduce the fields `vm_pair_lb` and `vm_pair_ub`, which define bounds for pairs of terminals,
+- $\forall$ `(c,d,lb)` $\in$ `vm_pair_lb`: `|v[c]-v[d]| >= lb`
+- $\forall$ `(c,d,ub)` $\in$ `vm_pair_ub`: `|v[c]-v[d]| <= ub`
 
-- `vm_pair_ub = [(a,n,250), (b,n,250), (c,n,250), (a,b,440), (b,c,440), (c,a,440)]`
-- `vm_pair_lb = [(a,n,210), (b,n,210), (c,n,210), (a,b,360), (b,c,360), (c,a,360)]`
-
-If terminal `4` is grounding through an impedance `Z=1+j2`, we write
+Finally, we give an example of how grounding impedances should be entered. If terminal `4` is grounded through an impedance `Z=1+j2`, we write
 
 - `grounded=[4]`, `rg=[1]`, `xg=[2]`
 
-Since this might be confusing for novice users, we also allow the user to define bounds through the following component.
-
 ### Special Case: three-phase bus
 
-- Specify bounds relative to some `vnom`? Yes, but in voltage_zones
+For three-phase buses, instead of specifying bounds explicitly for each pair of windings, often we want to specify 'phase-to-phase', 'phase-to-neutral' and 'neutral-to-ground' bounds. This can be done conveniently with a number of additional fields. First, `phases` is a list of the phase terminals, and `neutral` designates a single terminal to be the neutral.
 
-Much of the difficulty arrises from supporting phase-to-phase bounds for both two-phase and three-phase systems. For example, a 2-phase `[a,b]` system only has 1 phase-to-phase bound, whilst a 3-phase system `[a,b,c]` has 3!
+- The bounds `vm_pn_lb` and `vm_pn_ub` specify the same lower and upper bound for the magnitude of the difference of each phase terminal and the neutral.
+- The bounds `vm_pp_lb` and `vm_pp_ub` specify the same lower and upper bound for the magnitude of the difference of all phase terminals.
+- `vm_ng_ub` specifies an upper bound for the neutral terminal, the lower bound is typically zero.
 
-A 4-phase system `[a,b,c,d]` is not well-defined; should there be phase-to-phase bounds for each permutation, _i.e._, `[(a,b), (a,c), (a,d), (b,c), (b,d), (c,d)]`, or only for adjacent ones as it would apply to a 4-phase delta connection, `[(a,b), (b,c), (c,d), (a,d)]`? For three-phase systems these two options coincide.
-
-In order to avoid all of this confusion, we introduce this component, which is at most 3-phase, `|phases|<=3`, and which specifies all bounds symmetrically. For example,
-
-- `phases=[1,2,3], vm_pp_ub=440` implies |U1-U2|, |U2-U3|, |U1-U3| <= 440
-- `phases=[1,2], vm_pn_ub=440` implies |U1-U2| <= 440
-
-This keeps the user from specifying things that do not make sense. This type of bus would suffice for most of the use cases.
+If all of these are specified, these bounds also imply valid bounds for the individual voltage magnitudes,
+- $\forall$ `c` $\in$ `phases`: `vm_pn_lb - vm_ng_ub <= |v[c]| <= vm_pn_ub + vm_ng_ub`
+- `0 <= |v[neutral]|<= vm_ng_ub`
 
 Instead of defining the bounds directly, they can be specified through an associated voltagezone.
 
@@ -248,9 +243,8 @@ These are objects that have single bus connections. Every object will have at le
 | ---------------- | ------- | -------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
 | `bus`            |         | `Any`          |         | always   | id of bus connection                                                                                               |
 | `connections`    |         | `Vector{Any}`  |         | always   | Ordered list of connected conductors                                                                               |
-| `configuration`  | `"wye"` | `String`       |         | always   | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`                                                       |
-| `gs`             |         | `Matrix{Real}` | siemens | always   | Conductance, `size=(nphases,nphases)`                                                                              |
-| `bs`             |         | `Matrix{Real}` | siemens | always   | Susceptance, `size=(nphases,nphases)`                                                                              |
+| `gs`             |         | `Matrix{Real}` | siemens | always   | Conductance, `size=(|connections|,|connections|)`                                                                              |
+| `bs`             |         | `Matrix{Real}` | siemens | always   | Susceptance, `size=(|connections|,|connections|)`                                                                              |
 | `status`         | `1`     | `Bool`         |         | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                            |
 | `{}_time_series` |         | `Any`          |         |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `gs`, `bs` |
 
@@ -292,11 +286,34 @@ This is a special case of `shunt` with its own data category for easier tracking
 | `model`          | `"constant_power"` | `String`       |       | always   | `"constant_power"`, `"constant_impedance"`, `"constant_current"`, `"exponential"`, or `"zip"`. Indicates the type of voltage-dependency |
 | `pd_nom`         |                    | `Vector{Real}` | watt  | always   | Nominal active load, with respect to `vnom`, `size=nphases`                                                                             |
 | `qd_nom`         |                    | `Vector{Real}` | var   | always   | Nominal reactive load, with respect to `vnom`, `size=nphases`                                                                           |
-| `vnom`           |                    | `Real`         | volt  | always   | Nominal voltage (multiplier)                                                                                                            |
+| `vnom`           |                    | `Real`         | volt  | `model!="constant_power"`   | Nominal voltage (multiplier)                                                                                                            |
 | `status`         | `1`                | `Bool`         |       | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                                                 |
 | `{}_time_series` |                    | `Any`          |       |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `pd_nom`, `qd_nom`              |
 
+Multi-phase loads define a number of individual loads connected between two terminals each. How they are connected, is defined both by `configuration` and `connections`. The table below indicates the value of `configuration` and lengths of the other properties for a consistent definition,
+
+| `configuration` | `|connections|` | `|pd_nom|=|qd_nom|=|pd_exp|=...` |
+|-|-|-|
+|`delta`|`2`|`1`|
+|`delta`|`3`|`3`|
+|`wye`|`2`|`1`|
+|`wye`|`3`|`2`|
+|`wye`|`N`|`N-1`|
+
+Note that for delta loads, only 2 and 3 connections are allowed. Each individual load `i` is connected between two terminals, exposed to a voltage magnitude `v[i]`, which leads to a consumption `pd[i]+j*qd[i]`. The `model` then defines the relationship between these quantities,
+
+| model | `pd[i]/pd_nom[i]=` | `qd[i]/qd_nom[i]=` |
+|-|-|-|
+|`constant_power`|`1`|`1`|
+|`constant_current`|`(v[i]/vnom)`|`(v[i]/vnom)`|
+|`constant_impedance`|`(v[i]/vnom)^2`|`(v[i]/vnom)^2`|
+
+Two more model types are supported, which need additional fields and are defined below.
+
 #### `model="exponential"`
+
+- `(pd[i]/pd_nom[i]) = (v[i]/vnom)^pd_exp[i]`
+- `(qd[i]/qd_nom[i]) = (v[i]/vnom)^qd_exp[i]`
 
 | Name     | Default | Type   | Units | Required               | Description |
 | -------- | ------- | ------ | ----- | ---------------------- | ----------- |
@@ -305,14 +322,18 @@ This is a special case of `shunt` with its own data category for easier tracking
 
 #### `model="zip"`
 
+- `(pd[i]/pd_nom) = pd_cz[i]*(v[i]/vnom)^2 + pd_ci[i]*(v[i]/vnom) + pd_cp[i]`
+- `(qd[i]/qd_nom) = qd_cz[i]*(v[i]/vnom)^2 + qd_ci[i]*(v[i]/vnom) + qd_cp[i]`
+
 | Name       | Default | Type   | Units | Required       | Description |
 | ---------- | ------- | ------ | ----- | -------------- | ----------- |
-| `pd_nom_z` |         | `Real` |       | `model=="zip"` |             |
-| `pd_nom_i` |         | `Real` |       | `model=="zip"` |             |
-| `pd_nom_p` |         | `Real` |       | `model=="zip"` |             |
-| `qd_nom_z` |         | `Real` |       | `model=="zip"` |             |
-| `qd_nom_i` |         | `Real` |       | `model=="zip"` |             |
-| `qd_nom_p` |         | `Real` |       | `model=="zip"` |             |
+| `vnom`           |                    | `Real`         | volt  | `model=="zip"`   | Nominal voltage (multiplier)                                                                                                            |
+| `pd_cz` |         | `Real` |       | `model=="zip"` |             |
+| `pd_ci` |         | `Real` |       | `model=="zip"` |             |
+| `pd_cp` |         | `Real` |       | `model=="zip"` |             |
+| `qd_cz` |         | `Real` |       | `model=="zip"` |             |
+| `qd_ci` |         | `Real` |       | `model=="zip"` |             |
+| `qd_cp` |         | `Real` |       | `model=="zip"` |             |
 
 ### Generators `generator` (or Synchronous Machines `synchronous_machine`?)
 
