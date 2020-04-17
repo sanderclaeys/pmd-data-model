@@ -51,10 +51,9 @@ At the root-level of the data model a `settings` dictionary object is expected, 
 
 | Name             | Default | Type   | Units | Used   | Description                                                    |
 | ---------------- | ------- | ------ | ----- | ------ | -------------------------------------------------------------- |
-| `v_var_scalar`   | `1e3`   | `Real` |       | always | Scalar for voltage values                                      |
-| `vbase`          |         | `Real` |       | always | Voltage base (_i.e._ basekv) at `base_bus`                     |
-| `sbase`          |         | `Real` |       | always | Power base (baseMVA) at `base_bus`                             |
-| `base_bus`       |         | `Any`  |       | always | id of bus at which `vbase` and `sbase` apply                   |
+| `v_var_scalar`   | `1e3`   | `Real` |       | always | Scalar for values in V, W, VAr and VA                                      |
+| `set_vbase`          |         | `Dict` |       | eng2math       | Instruction to set the vbase at a number of buses for non-dimensionalization                    |
+| `set_sbase`          |         | `Real` |       | eng2math       | Instruction to set the power base (baseMVA) for non-dimensionalization                             |
 | `base_frequency` | `60.0`  | `Real` | Hz    | always | Frequency base, _i.e._ the base frequency of the whole circuit |
 
 ## Buses (`bus`)
