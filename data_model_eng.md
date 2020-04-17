@@ -258,7 +258,6 @@ This is a special case of `shunt` with its own data category for easier tracking
 | ---------------- | ------- | -------------- | ------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
 | `bus`            |         | `Any`          |         | always       | id of bus connection                                                                                         |
 | `connections`    |         | `Vector{Any}`  |         | always       | Ordered list of connected conductors, `size=nconductors`                                                     |
-| `configuration`  | `"wye"` | `String`       |         | always       | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`. For `"delta"`, 2 or 3 connections only         |
 | `bs`             |         | `Matrix{Real}` | siemens | always       | Conductance, `size=(nconductors,nconductors)`                                                                |
 | `vnom`           |         | `Real`         | volt    |              | Nominal voltage (multiplier), for reference                                                                  |
 | `status`         | `1`     | `Bool`         |         | always       | `1` or `0`. Indicates if component is enabled or disabled, respectively                                      |
@@ -272,7 +271,6 @@ This is a special case of `shunt` with its own data category for easier tracking
 | ---------------- | ------- | -------------- | ------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
 | `bus`            |         | `Any`          |         | always       | id of bus connection                                                                                         |
 | `connections`    |         | `Vector{Any}`  |         | always       | Ordered list of connected conductors, `size=nconductors`                                                     |
-| `configuration`  | `"wye"` | `String`       |         | always       | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`. For `"delta"`, 2 or 3 connections only         |
 | `bs`             |         | `Matrix{Real}` | siemens | always       | Conductance, `size=(nconductors,nconductors)`                                                                |
 | `vnom`           |         | `Real`         | volt    |              | Nominal voltage (multiplier), for reference                                                                  |
 | `status`         | `1`     | `Bool`         |         | always       | `1` or `0`. Indicates if component is enabled or disabled, respectively                                      |
