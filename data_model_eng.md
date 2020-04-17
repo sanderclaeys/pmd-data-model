@@ -48,10 +48,10 @@ At the root-level of the data model a `settings` dictionary object is expected, 
 | Name             | Default | Type   | Units | Required | Description                                                    |
 | ---------------- | ------- | ------ | ----- | -------- | -------------------------------------------------------------- |
 | `v_var_scalar`   | `1e3`   | `Real` |       | always   | Scalar for voltage values                                      |
-| `vbase`          |         | `Real` |       | always   | Voltage base (_i.e._ basekv) at `base_bus`                     |
-| `sbase`          |         | `Real` |       | always   | Power base (baseMVA) at `base_bus`                             |
-| `base_bus`       |         | `Any`  |       | always   | id of bus at which `vbase` and `sbase` apply                   |
-| `base_frequency` | `60.0`  | `Real` | Hz    | always   | Frequency base, _i.e._ the base frequency of the whole circuit |
+| `vbase`          |         | `Real` |       |          | Voltage base (_i.e._ basekv) at `base_bus`                     |
+| `sbase`          |         | `Real` |       |          | Power base (baseMVA) at `base_bus`                             |
+| `base_bus`       |         | `Any`  |       |          | id of bus at which `vbase` and `sbase` apply                   |
+| `base_frequency` | `60.0`  | `Real` | Hz    |          | Frequency base, _i.e._ the base frequency of the whole circuit |
 
 ## Buses (`bus`)
 
@@ -243,9 +243,8 @@ These are objects that have single bus connections. Every object will have at le
 | ---------------- | ------- | -------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
 | `bus`            |         | `Any`          |         | always   | id of bus connection                                                                                               |
 | `connections`    |         | `Vector{Any}`  |         | always   | Ordered list of connected conductors                                                                               |
-| `configuration`  | `"wye"` | `String`       |         | always   | `"wye"` or `"delta"`. If `"wye"`, `connections[end]=neutral`                                                       |
-| `gs`             |         | `Matrix{Real}` | siemens | always   | Conductance, `size=(nphases,nphases)`                                                                              |
-| `bs`             |         | `Matrix{Real}` | siemens | always   | Susceptance, `size=(nphases,nphases)`                                                                              |
+| `gs`             |         | `Matrix{Real}` | siemens | always   | Conductance, `size=(|connections|,|connections|)`                                                                              |
+| `bs`             |         | `Matrix{Real}` | siemens | always   | Susceptance, `size=(|connections|,|connections|)`                                                                              |
 | `status`         | `1`     | `Bool`         |         | always   | `1` or `0`. Indicates if component is enabled or disabled, respectively                                            |
 | `{}_time_series` |         | `Any`          |         |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `gs`, `bs` |
 
