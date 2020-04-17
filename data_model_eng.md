@@ -76,12 +76,15 @@ The data model below allows us to include buses of arbitrary many terminals (_i.
 | `{}_time_series` |             | `Any`           |        |          | id of `time_series` object that will replace the values of parameter given by `{}`. Valid for `status`, `vm`, `va`, `vm_lb`, `vm_ub` |
 
 Each terminal `c` of the bus has an associated complex voltage phasor `v[c]`. There are two types of voltage magnitude bounds. The first type bounds the voltage magnitude of each `v[c]` individually,
+
 - `lb <= |v[c]| <= ub`
 
 However, especially in four-wire networks, bounds are more naturally imposed on the difference of two terminal voltages instead, e.g. for terminals `c` and `d`,
+
 - `lb <= |v[c]-v[d]| <= ub`
 
 This is why we introduce the fields `vm_pair_lb` and `vm_pair_ub`, which define bounds for pairs of terminals,
+
 - $\forall$ `(c,d,lb)` $\in$ `vm_pair_lb`: `|v[c]-v[d]| >= lb`
 - $\forall$ `(c,d,ub)` $\in$ `vm_pair_ub`: `|v[c]-v[d]| <= ub`
 
@@ -98,6 +101,7 @@ For three-phase buses, instead of specifying bounds explicitly for each pair of 
 - `vm_ng_ub` specifies an upper bound for the neutral terminal, the lower bound is typically zero.
 
 If all of these are specified, these bounds also imply valid bounds for the individual voltage magnitudes,
+
 - $\forall$ `c` $\in$ `phases`: `vm_pn_lb - vm_ng_ub <= |v[c]| <= vm_pn_ub + vm_ng_ub`
 - `0 <= |v[neutral]|<= vm_ng_ub`
 
