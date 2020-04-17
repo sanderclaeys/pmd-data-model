@@ -112,8 +112,8 @@ Instead of defining the bounds directly, they can be specified through an associ
 
 | Name           | Default   | Type        | Units | Used   | Description                                                   |
 | -------------- | --------- | ----------- | ----- | ------ | ------------------------------------------------------------- |
-| `phases`       | `[1,2,3]` | Vector{Any} |       | always | Identifies the terminal that represents the neutral conductor |
-| `neutral`      | `4`       | `Any`       |       | always | Identifies the terminal that represents the neutral conductor |
+| `phases`       |           | Vector{Any} |       | always | Identifies the terminal that represents the neutral conductor |
+| `neutral`      |           | `Any`       |       | always | Identifies the terminal that represents the neutral conductor |
 | `voltage_zone` |           | `Any`       |       | always | id of an associated voltage zone                              |
 | `vm_pn_lb`     |           | `Real`      |       | opf    | Minimum phase-to-neutral voltage magnitude for all phases     |
 | `vm_pn_ub`     |           | `Real`      |       | opf    | Maximum phase-to-neutral voltage magnitude for all phases     |
