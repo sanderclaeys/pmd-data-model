@@ -1,23 +1,26 @@
-# pmd-data-model
-draft of data model for PowerModelsDistribution.jl
+# PowerModelsDistribution Engineering Data Model
 
-For a draft of our high-level (engineering) data model for PowerModelsDistribution.jl, please see [data_model_eng.md](data_model_eng.md). 
-We would greatly appreciate your feedback; you can simply open an issue where you can raise
+This repository contains the current draft of data model for PowerModelsDistribution.jl
+
+For a draft of our high-level (`"engineering"`) data model for PowerModelsDistribution.jl, please see [data_model_eng.md](data_model_eng.md).
+
+## Why are we doing this?
+
+The primarily reason to change the data model is to adequately support the typical components in distribution systems it was necessary in many cases to *decompose* components into multiple base components that could more easily be represented mathematically in *e.g.* the PowerModels data format. The most obvious example of this are distribution level transformers. In order to support n-winding, multiphase transformers a decomposition scheme was created to turn those components into series of ideal 2-winding lossless transformers and impedance branches. To connect these decomposed components together, virtual buses also have to be introduced. The result of this is a data model that does not directly represent the original network topologically. This has also created difficulty in applying preprocessing to networks, since high-level information was lost in the process of parsing in the files. In this new schema, preprocessing to *e.g.* remove small impedances, perform Kron reductions, or even convert transformers into impedance branches, etc., should be much simplier.
+
+In addition, because the common data format that we use for distribution networks, OpenDSS, supports arbitrary string names for components, as opposed to integers as we have traditionally supported, many users commented that debuging their networks once parsed into PowerModelsDistribution was challenging, and has proven to be a barrier to entry for PowerModelsDistribution.. To address this, we have created a schema where the dictionary keys of the components match thier names as best as possible in the originating data format.
+
+Finally, although OpenDSS supports a large number of ways to define networks, and can be quite powerful, it is geared towards power flow and harmonics analysis, whereas PowerModelsDistribution is meant to focus on optimization. OpenDSS unfortunately does not have a clean way to define optimization parameters, such as cost models for generators, or per phase bounds (*e.g.* current, voltage, etc.). There are also several features that OpenDSS does not support in regards to transformer definition, such as per phase, per winding tap definitions, which is a feature that has been requested by the user community. This data model will allow us to *specify test cases for distribution network optimization in a well-defined way*.
+
+By adding this high-level data model, dubbed the `"engineering"` data model, to PowerModelsDistribution we aim to significantly increase the user-friendliness of our software.
+
+## We want your feedback
+
+As users of PowerModelDistribution, your feedback on this data model is immensely valuable. Because we want to increase the user-friendliness and reduce the barrier to entry for PowerModelsDistribution, incorporating feedback from those working in both power engineering and optimization is desirable.
+
+We encourage you to submit your feedback via Github Issues on this repository and we will do our best to incorporate those comments and suggestions. For example, please submit an Issues if there is:
+
 - something that is unclear;
 - a use case you have that is missing;
+- the naming of a component or parameter is too out-of-conformation compared to current useage;
 - ...
-
-### Why are we doing this?
-In short, this data model extends a subset of the OpenDSS data model with properties specific to optimization, such as
-- technical constraints (voltage bounds, current bounds...),
-- generation costs,
-- ...
-
-This will allow us to *specify test cases for distribution network optimization in a well-defined way*. 
-
-In the past, we parsed OpenDSS data directly to a low-level, mathematical representation of the network. 
-This made it hard to preprocess the data, as much high-level information was lost in the process.
-Also, it was difficult to inspect what the parser was reading in, because it was immediately transformed/mapped in various ways.
-We aim to *make PowerModelsDistribution.jl more user-friendly by adding this high-level data model*.
-
-
