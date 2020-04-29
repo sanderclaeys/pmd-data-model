@@ -58,7 +58,22 @@ At the root-level of the data model a `settings` dictionary object is expected, 
 | `sbase_default`        |         | `Real` |       | always | Instruction to set the power base (baseMVA) for non-dimensionalization       |
 | `base_frequency`       | `60.0`  | `Real` | Hz    | always | Frequency base, _i.e._ the base frequency of the whole circuit               |
 
-TODO update explanation for vbase, sbase, and add how vbase_default is specified
+The parameters `voltage_scale_factor` and `power_scale_factor`determine the base
+for all voltage and power parameters in this data model. For example,
+- `voltage_scale_factor=1E3` and `vm_nom=4.0`: `vm_nom` is `4.0 kV`/`4.0E3 V`,
+- `power_scale_factor=1E6` and `pd_nom=2.0`: `pd_nom` is `2.0 MW`/`2.0E6 W`,
+- `power_scale_factor=1E6` and `qd_nom=5.0`: `qd_nom` is `5.0 MVAr`/`5.0E6 VAr`,
+
+where the mentioned fields `vm_nom`, `pd_nom` and `qd_nom` are sample voltage
+and power variables which are defined later.
+
+On the other hand,`vbase_default` and `sbase_default` provide default values for
+a 'per unit' conversion; these do not affect the interpretation of the parameters
+in this model, like the scale factors do.
+Note that `vbase_default` is a `Dict`, with pairs of bus ids and voltage magnitude
+levels, since in per unit conversion, the voltage base can change from bus to bus.
+The power base is the same everywhere, and therefore `sbase_default` has a single
+value.
 
 ## Buses (`bus`)
 
