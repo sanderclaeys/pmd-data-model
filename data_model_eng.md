@@ -28,7 +28,7 @@ Valid component types are those that are documented in the sectios below. Each c
 
 Each edge or node component (_i.e._ all those that are not data objects or buses), are expected to have `status` fields to specify whether the component is active or disabled, `bus` or `f_bus` and `t_bus`, to specify the buses that are connected to the component, and `connections` or `f_connections` and `t_connections`, to specify the terminals of the buses that are actively connected in an ordered list. Terminals/connections can be any immutable value, as can bus ids.
 
-Parameter values on components are expected to be specified in SI units by default (where applicable) in the engineering data model. Relevant expected units are noted in the sections below. It is possible for the user to select universal scalar factors for power and voltages. For example, if `power_scalar_factor` and `voltage_scalar_factor` are their default values given below, where units is listed as watt or var, real units will be kW and kvar. Where units are listed as volt, real units will be kV (multiplied by `vnom`, where that value exists).
+Parameter values on components are expected to be specified in SI units by default (where applicable) in the engineering data model. Relevant expected units are noted in the sections below. It is possible for the user to select universal scalar factors for power and voltages. For example, if `power_scalar_factor` and `voltage_scalar_factor` are their default values given below, where units is listed as watt or var, real units will be kW and kvar. Where units are listed as volt, real units will be kV (multiplied by `vm_nom`, where that value exists).
 
 The Used column describes the situtations where certain parameters are used. "always" indicates those values are used in all contexts, `opf`, `mld`, or any other problem name abbreviation indicate they are used in particular for those problems. "solution" indicates that those parameters are outputs from the solvers. "multinetwork" indictes these values are only used to build multinetwork problems.
 
@@ -167,18 +167,18 @@ These are n-winding (`nwinding`), n-phase (`nphase`), lossy transformers. Note t
 | `connections`    |                                      | `Vector{Vector{Int}}`  |           | always | List of connection for each winding, `size=((nconductors),nwindings)`                                                                                          |
 | `configurations` | `fill(WYE, nwindings)`               | `Vector{ConnConfig}`   |           | always | `WYE` or `DELTA`. List of configuration for each winding, `size=nwindings`                                                                                     |
 | `xfmrcode`       |                                      | `Any`                  |           | always |                                                                                                                                                                |
-| `xsc`            | `zeros(nwindings*(nwindings-1)/2)`   | `Vector{Real}`         | `snom[1]` | always | List of short-circuit reactances between each pair of windings, relative to the VA rating of the first winding; enter as a list of the upper-triangle elements |
-| `rs`             | `zeros(nwindings)`                   | `Vector{Real}`         | `snom[1]` | always | Active power lost due to resistance of each winding, relative to the VA rating of each winding winding                                                         |
-| `imag`           | `0.0`                                | `Real`                 | `snom[1]` | always | Total no-load reactive power drawn by the transformer, relative to VA rating of the first winding                                                              |
-| `noloadloss`     | `0.0`                                | `Real`                 | `snom[1]` | always | Total no-load active power drawn by the transformer, relative to VA rating of the first winding                                                                |
+| `xsc`            | `zeros(nwindings*(nwindings-1)/2)`   | `Vector{Real}`         | `sm_nom[1]` | always | List of short-circuit reactances between each pair of windings, relative to the VA rating of the first winding; enter as a list of the upper-triangle elements |
+| `rs`             | `zeros(nwindings)`                   | `Vector{Real}`         | `sm_nom[1]` | always | Active power lost due to resistance of each winding, relative to the VA rating of each winding winding                                                         |
+| `imag`           | `0.0`                                | `Real`                 | `sm_nom[1]` | always | Total no-load reactive power drawn by the transformer, relative to VA rating of the first winding                                                              |
+| `noloadloss`     | `0.0`                                | `Real`                 | `sm_nom[1]` | always | Total no-load active power drawn by the transformer, relative to VA rating of the first winding                                                                |
 | `tm_nom`         | `ones(nwindings)`                    | `Vector{Real}`         |           | always | Nominal tap ratio for the transformer, `size=nwindings` (multiplier)                                                                                           |
 | `tm_ub`          |                                      | `Vector{Vector{Real}}` |           | opf    | Maximum tap ratio for each winding and phase, `size=((nphases),nwindings)` (base=`tm_nom`)                                                                     |
 | `tm_lb`          |                                      | `Vector{Vector{Real}}` |           | opf    | Minimum tap ratio for for each winding and phase, `size=((nphases),nwindings)` (base=`tm_nom`)                                                                 |
 | `tm_set`         | `fill(fill(1.0,nphases),nwindings)`  | `Vector{Vector{Real}}` |           | always | Set tap ratio for each winding and phase, `size=((nphases),nwindings)` (base=`tm_nom`)                                                                         |
 | `tm_fix`         | `fill(fill(true,nphases),nwindings)` | `Vector{Vector{Bool}}` |           | oltc   | Indicates for each winding and phase whether the tap ratio is fixed, `size=((nphases),nwindings)`                                                              |
 | `polarity`       | `fill(1,nwindings)`                  | `Vector{Int}`          |           | always |                                                                                                                                                                |
-| `vnom`           |                                      | `Vector{Real}`         | volt      | always |                                                                                                                                                                |
-| `snom`           |                                      | `Vector{Real}`         | watt      | always |                                                                                                                                                                |
+| `vm_nom`           |                                      | `Vector{Real}`         | volt      | always |                                                                                                                                                                |
+| `sm_nom`           |                                      | `Vector{Real}`         | watt      | always |                                                                                                                                                                |
 | `status`         | `ENABLED`                            | `Status`               |           | always | `ENABLED` or `DISABLED`. Indicates if component is enabled or disabled, respectively                                                                           |
 
 #### Assymetric, Lossless, Two-Winding (AL2W) Transformers
@@ -257,9 +257,9 @@ This is a special case of `shunt` with its own data category for easier tracking
 | `connections`   |           | `Vector{Int}`      |       | always         | Ordered list of connected conductors, `size=nconductors`                                           |
 | `configuration` | `WYE`     | `ConnConfig`       |       | always         | `WYE` or `DELTA`. If `WYE`, `connections[end]=neutral`                                             |
 | `model`         | `POWER`   | `LoadModel`        |       | always         | `POWER`, `IMPEDANCE`, `CURRENT`, `EXPONENTIAL`, or `ZIP`. Indicates the type of voltage-dependency |
-| `pd_nom`        |           | `Vector{Real}`     | watt  | always         | Nominal active load, with respect to `vnom`, `size=nphases`                                        |
-| `qd_nom`        |           | `Vector{Real}`     | var   | always         | Nominal reactive load, with respect to `vnom`, `size=nphases`                                      |
-| `vnom`          |           | `Real`             | volt  | `model!=POWER` | Nominal voltage (multiplier)                                                                       |
+| `pd_nom`        |           | `Vector{Real}`     | watt  | always         | Nominal active load, with respect to `vm_nom`, `size=nphases`                                        |
+| `qd_nom`        |           | `Vector{Real}`     | var   | always         | Nominal reactive load, with respect to `vm_nom`, `size=nphases`                                      |
+| `vm_nom`          |           | `Real`             | volt  | `model!=POWER` | Nominal voltage (multiplier)                                                                       |
 | `dispatchable`  | `NO`   | `Dispatchable`     |       | mld            | `NO` or `YES`, indicates whether a load can be shed                                            |
 | `status`        | `ENABLED` | `Status`           |       | always         | `ENABLED` or `DISABLED`. Indicates if component is enabled or disabled, respectively               |
 | `time_series`   |           | `Dict{String,Any}` |       | multinetwork   | Dictionary containing time series parameters.                                                      |
@@ -279,15 +279,15 @@ Note that for delta loads, only 2 and 3 connections are allowed. Each individual
 | model       | `pd[i]/pd_nom[i]=` | `qd[i]/qd_nom[i]=` |
 | ----------- | ------------------ | ------------------ |
 | `POWER`     | `1`                | `1`                |
-| `CURRENT`   | `(v[i]/vnom)`      | `(v[i]/vnom)`      |
-| `IMPEDANCE` | `(v[i]/vnom)^2`    | `(v[i]/vnom)^2`    |
+| `CURRENT`   | `(v[i]/vm_nom)`      | `(v[i]/vm_nom)`      |
+| `IMPEDANCE` | `(v[i]/vm_nom)^2`    | `(v[i]/vm_nom)^2`    |
 
 Two more model types are supported, which need additional fields and are defined below.
 
 #### `model == EXPONENTIAL`
 
-- `(pd[i]/pd_nom[i]) = (v[i]/vnom)^pd_exp[i]`
-- `(qd[i]/qd_nom[i]) = (v[i]/vnom)^qd_exp[i]`
+- `(pd[i]/pd_nom[i]) = (v[i]/vm_nom)^pd_exp[i]`
+- `(qd[i]/qd_nom[i]) = (v[i]/vm_nom)^qd_exp[i]`
 
 | Name     | Default | Type   | Units | Used                 | Description |
 | -------- | ------- | ------ | ----- | -------------------- | ----------- |
@@ -296,12 +296,12 @@ Two more model types are supported, which need additional fields and are defined
 
 #### `model == ZIP`
 
-- `(pd[i]/pd_nom) = pd_cz[i]*(v[i]/vnom)^2 + pd_ci[i]*(v[i]/vnom) + pd_cp[i]`
-- `(qd[i]/qd_nom) = qd_cz[i]*(v[i]/vnom)^2 + qd_ci[i]*(v[i]/vnom) + qd_cp[i]`
+- `(pd[i]/pd_nom) = pd_cz[i]*(v[i]/vm_nom)^2 + pd_ci[i]*(v[i]/vm_nom) + pd_cp[i]`
+- `(qd[i]/qd_nom) = qd_cz[i]*(v[i]/vm_nom)^2 + qd_ci[i]*(v[i]/vm_nom) + qd_cp[i]`
 
 | Name    | Default | Type   | Units | Used         | Description                  |
 | ------- | ------- | ------ | ----- | ------------ | ---------------------------- |
-| `vnom`  |         | `Real` | volt  | `model==ZIP` | Nominal voltage (multiplier) |
+| `vm_nom`  |         | `Real` | volt  | `model==ZIP` | Nominal voltage (multiplier) |
 | `pd_cz` |         | `Real` |       | `model==ZIP` |                              |
 | `pd_ci` |         | `Real` |       | `model==ZIP` |                              |
 | `pd_cp` |         | `Real` |       | `model==ZIP` |                              |
@@ -452,7 +452,7 @@ Voltage zones are a convenient way to specify voltage bounds for a set of three-
 
 | Name       | Default | Type   | Units | Used   | Description                                               |
 | ---------- | ------- | ------ | ----- | ------ | --------------------------------------------------------- |
-| `vnom`     |         | `Real` |       | always | Nominal phase-to-neutral voltage                          |
+| `vm_nom`     |         | `Real` |       | always | Nominal phase-to-neutral voltage                          |
 | `vm_pn_lb` |         | `Real` |       | opf    | Minimum phase-to-neutral voltage magnitude for all phases |
 | `vm_pn_ub` |         | `Real` |       | opf    | Maximum phase-to-neutral voltage magnitude for all phases |
 | `vm_pp_lb` |         | `Real` |       | opf    | Minimum phase-to-phase voltage magnitude for all phases   |
