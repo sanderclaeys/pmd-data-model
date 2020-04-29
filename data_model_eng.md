@@ -213,7 +213,7 @@ Switches without `rs`, `xs` or a linecode (conductance/susceptance not considere
 | `linecode`      |                          | `Any`          |       | always | id of an associated linecode, does not take into account conductance/susceptance                     |
 | `rs`            | `zeros(nphases,nphases)` | `Matrix{Real}` | ohm   | always | Series resistance matrix, `size=(nphases,nphases)`                                                   |
 | `xs`            | `zeros(nphases,nphases)` | `Matrix{Real}` | ohm   | always | Series reactance matrix, `size=(nphases,nphases)`                                                    |
-| `dispatchable`  | `FIXED`                  | `Dispatchable` |       |        | `FIXED` or `FREE`, indicates whether switch state can be changed in a switching optimization problem |
+| `dispatchable`  | `NO`                  | `Dispatchable` |       |        | `NO` or `YES`, indicates whether switch state can be changed in a switching optimization problem |
 | `state`         | `CLOSED`                 | `SwitchState`  |       | always | `CLOSED`: closed or `OPEN`: open, to indicate state of switch                                        |
 | `status`        | `ENABLED`                | `Status`       |       | always | `ENABLED` or `DISABLED`. Indicates if component is enabled or disabled, respectively                 |
 
@@ -237,7 +237,7 @@ These are objects that have single bus connections. Every object will have at le
 | `connections`  |           | `Vector{Int}`      |         | always       | Ordered list of connected conductors, `size=nconductors`                             |
 | `gs`           |           | `Matrix{Real}`     | siemens | always       | Conductance, `size=(nconductors,nconductors)`                                        |
 | `bs`           |           | `Matrix{Real}`     | siemens | always       | Susceptance, `size=(nconductors,nconductors)`                                        |
-| `dispatchable` | `FIXED`   | `Dispatchable`     |         | mld          | `FIXED` or `FREE`, indicates whether a shunt can be shed                             |
+| `dispatchable` | `NO`   | `Dispatchable`     |         | mld          | `NO` or `YES`, indicates whether a shunt can be shed                             |
 | `status`       | `ENABLED` | `Status`           |         | always       | `ENABLED` or `DISABLED`. Indicates if component is enabled or disabled, respectively |
 | `time_series`  |           | `Dict{String,Any}` |         | multinetwork | Dictionary containing time series parameters.                                        |
 
@@ -260,7 +260,7 @@ This is a special case of `shunt` with its own data category for easier tracking
 | `pd_nom`        |           | `Vector{Real}`     | watt  | always         | Nominal active load, with respect to `vnom`, `size=nphases`                                        |
 | `qd_nom`        |           | `Vector{Real}`     | var   | always         | Nominal reactive load, with respect to `vnom`, `size=nphases`                                      |
 | `vnom`          |           | `Real`             | volt  | `model!=POWER` | Nominal voltage (multiplier)                                                                       |
-| `dispatchable`  | `FIXED`   | `Dispatchable`     |       | mld            | `FIXED` or `FREE`, indicates whether a load can be shed                                            |
+| `dispatchable`  | `NO`   | `Dispatchable`     |       | mld            | `NO` or `YES`, indicates whether a load can be shed                                            |
 | `status`        | `ENABLED` | `Status`           |       | always         | `ENABLED` or `DISABLED`. Indicates if component is enabled or disabled, respectively               |
 | `time_series`   |           | `Dict{String,Any}` |       | multinetwork   | Dictionary containing time series parameters.                                                      |
 
