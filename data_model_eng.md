@@ -69,7 +69,7 @@ The data model below allows us to include buses of arbitrary many terminals (_i.
 
 | Name          | Default     | Type               | Units  | Used         | Description                                                                          |
 | ------------- | ----------- | ------------------ | ------ | ------------ | ------------------------------------------------------------------------------------ |
-| `terminals`   | `[1,2,3,4]` | `Vector{Int}`      |        | always       | Terminals for which the bus has active connections                                   |
+| `terminals`   | `[1,2,3,4]` | `Vector{Int}`*      |        | always       | Terminals for which the bus has active connections; * this can be either `Vector{Int}` or `Vector{String}`, but has to be consistent across all fields referring to terminals                                   |
 | `vm_lb`       |             | `Vector{Real}`     | volt   | opf          | Minimum conductor-to-ground voltage magnitude, `size=nphases`                        |
 | `vm_ub`       |             | `Vector{Real}`     | volt   | opf          | Maximum conductor-to-ground voltage magnitude, `size=nphases`                        |
 | `vm_pair_ub`  |             | `Vector{Tuple}`    |        | opf          | _e.g._  `[(1,2,210)]` means \|U1-U2\|>210                                            |
