@@ -54,7 +54,7 @@ At the root-level of the data model a `settings` dictionary object is expected, 
 | ---------------------- | ------- | ------------------ | ----- | ------ | ---------------------------------------------------------------------------- |
 | `voltage_scale_factor` | `1e3`   | `Real`             |       | always | Scalar multiplier for voltage values                                         |
 | `power_scale_factor`   | `1e3`   | `Real`             |       | always | Scalar multiplier for power values                                           |
-| `vbase_default`        |         | `Dict{<:Any,Real}` |       | always | Instruction to set the vbase at a number of buses for non-dimensionalization |
+| `vbases_default`       |         | `Dict{<:Any,Real}` |       | always | Instruction to set the vbase at a number of buses for non-dimensionalization |
 | `sbase_default`        |         | `Real`             |       | always | Instruction to set the power base (baseMVA) for non-dimensionalization       |
 | `base_frequency`       | `60.0`  | `Real`             | Hz    | always | Frequency base, _i.e._ the base frequency of the whole circuit               |
 
@@ -221,14 +221,6 @@ Switches without `rs`, `xs` or a linecode (conductance/susceptance not considere
 | `dispatchable`  | `NO`                     | `Dispatchable`                |       |        | `NO` or `YES`, indicates whether switch state can be changed in a switching optimization problem |
 | `state`         | `CLOSED`                 | `SwitchState`                 |       | always | `CLOSED`: closed or `OPEN`: open, to indicate state of switch                                    |
 | `status`        | `ENABLED`                | `Status`                      |       | always | `ENABLED` or `DISABLED`. Indicates if component is enabled or disabled, respectively             |
-
-### Line Reactors (`line_reactor`)
-
-Line reactors are _e.g._ inductors can can be used to protect against input power distruptions. To be defined.
-
-### Series Capacitors (`series_capacitor`)
-
-Series capacitors can be used to _e.g._ compensate inductance on lines. To be defined.
 
 ## Node Objects
 
