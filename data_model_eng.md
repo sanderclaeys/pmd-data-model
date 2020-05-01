@@ -127,7 +127,6 @@ Instead of defining the bounds directly, they can be specified through an associ
 | -------------- | ------- | ----------------------------- | ----- | ------ | ------------------------------------------------------------- |
 | `phases`       |         | `Vector{Int}||Vector{String}` |       | always | Identifies the terminal that represents the neutral conductor |
 | `neutral`      |         | `Int||String`                 |       | always | Identifies the terminal that represents the neutral conductor |
-| `voltage_zone` |         | `Any`                         |       | always | id of an associated voltage zone                              |
 | `vm_pn_lb`     |         | `Real`                        |       | opf    | Minimum phase-to-neutral voltage magnitude for all phases     |
 | `vm_pn_ub`     |         | `Real`                        |       | opf    | Maximum phase-to-neutral voltage magnitude for all phases     |
 | `vm_pp_lb`     |         | `Real`                        |       | opf    | Minimum phase-to-phase voltage magnitude for all phases       |
@@ -403,7 +402,7 @@ A voltage source is a source of power at a set voltage magnitude and angle conne
 | `status`        | `ENABLED`                        | `Status`                      |        | always       | `ENABLED` or `DISABLED`. Indicates if component is enabled or disabled, respectively |
 | `time_series`   |                                  | `Dict{String,Any}`            |        | multinetwork | Dictionary containing time series parameters.                                        |
 
-## Data Objects (codes, curves, shapes)
+## Data Objects (codes, time series, etc.)
 
 These objects are referenced by node and edge objects, but are not part of the network themselves, only containing data.
 
@@ -436,19 +435,6 @@ Transformer codes are easy ways to specify properties common to multiple transfo
 | `tm_set`         | `fill(fill(1.0, nphases), nwindings)`  | `Vector{Vector{Real}}` |       | always | Set tap ratio for each winding and phase, `size=((nphases), nwindings)` (base=`tm_nom`)                                                         |
 | `tm_fix`         | `fill(fill(true, nphases), nwindings)` | `Vector{Vector{Bool}}` |       | always | Indicates for each winding and phase whether the tap ratio is fixed, `size=((nphases), nwindings)`                                              |
 
-### Voltage Zones (`voltage_zone`)
-
-Voltage zones are a convenient way to specify voltage bounds for a set of three-phase buses (ones with `phases`/`neutral` properties).
-
-| Name       | Default | Type   | Units | Used   | Description                                               |
-| ---------- | ------- | ------ | ----- | ------ | --------------------------------------------------------- |
-| `vm_nom`   |         | `Real` |       | always | Nominal phase-to-neutral voltage                          |
-| `vm_pn_lb` |         | `Real` |       | opf    | Minimum phase-to-neutral voltage magnitude for all phases |
-| `vm_pn_ub` |         | `Real` |       | opf    | Maximum phase-to-neutral voltage magnitude for all phases |
-| `vm_pp_lb` |         | `Real` |       | opf    | Minimum phase-to-phase voltage magnitude for all phases   |
-| `vm_pp_ub` |         | `Real` |       | opf    | Maximum phase-to-phase voltage magnitude for all phases   |
-| `vm_ng_ub` |         | `Real` |       | opf    | Maximum neutral-to-ground voltage magnitude               |
-
 ### Time Series (`time_series`)
 
 Time series objects are used to specify time series for _e.g._ load or generation forecasts.
@@ -459,7 +445,7 @@ Some parameters for components specified in this document can support a time ser
 | --------- | ------- | -------------- | ----- | ------ | ------------------------------------------------------------------------------------- |
 | `time`    |         | `Vector{Real}` | hour  | always | Time points at which values are specified                                             |
 | `values`  |         | `Vector{Real}` |       | always | Multipers at each time step given in `time`                                           |
-| `offset`  | 0       | `Real`         | hour  | always |                                                                                       |
+| `offset`  | 0       | `Real`         | hour  | always | Start time offset                                                                     |
 | `replace` | `true`  | `Bool`         |       | always | Indicates to replace with data, instead of multiply. Will only work on non-Array data |
 
 ### Fuses (`fuse`)
